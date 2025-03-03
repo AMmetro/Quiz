@@ -5,6 +5,7 @@ import com.example.demo.exception.UserAlreadyExistException;
 import com.example.demo.exception.UserNotFoundException;
 import com.example.demo.model.User;
 import com.example.demo.service.UserService;
+import com.example.demo.annotation.RateLimit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +34,7 @@ public class UserController {
     }
 
     @GetMapping()
+    @RateLimit(limit = 10, seconds = 1)
     public Object getUser(@RequestParam Long id) {
         try {
             User user = userService.findUser(id);
