@@ -19,7 +19,7 @@ public class TodoEntity {
 
     public TodoEntity(){
     }
-
+//test
     public Boolean getCompleted() {
         return completed;
     }
