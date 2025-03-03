@@ -1,5 +1,7 @@
 package com.example.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.persistence.*;
 
 @Entity
@@ -12,7 +14,8 @@ public class TodoEntity {
 
     @ManyToOne                        //много todo  к одному user
     @JoinColumn(name = "user_id")     // внешний ключ по которому связаны таблицы
-    private UserEntity user;          // user совпадает с mappedBy = "user" в TodoEntity
+    @JsonBackReference                // убирает циклическую зависимость с UserEntity друг на друга
+    private UserEntity user;          // user совпадает с mappedBy = "user" в UserEntity
 
     public TodoEntity(){
     }

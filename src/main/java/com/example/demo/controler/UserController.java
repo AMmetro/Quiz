@@ -7,6 +7,7 @@ import com.example.demo.model.User;
 import com.example.demo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,6 +15,9 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     @Autowired
+/*
+*  DI is equal use this.userService = new UserService
+*/
     private UserService userService;
 
     @PostMapping
@@ -33,13 +37,13 @@ public class UserController {
         try {
             User user = userService.findUser(id);
             return ResponseEntity.ok(user);
-//                    return
-//                "<!DOCTYPE html>"+
-//                        "<html>"+
-//                        "	<head><title>Hello world!</title></head>"+
-//                        "	<body>Hello world!</body>"+
-//                        "</html>"
-// ;
+/*                    return
+*                "<!DOCTYPE html>"+
+*                        "<html>"+
+*                        "	<head><title>Hello world!</title></head>"+
+*                        "	<body>Hello world!</body>"+
+*                        "</html>"
+*/
         } catch (UserNotFoundException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
@@ -47,16 +51,31 @@ public class UserController {
         }
     };
 
-        @DeleteMapping("/{id}")
-    public ResponseEntity deleteUser(@PathVariable Long id){
+        @Transactional()
+        @PatchMapping("/{id}")
+           public ResponseEntity updateUser(
+            @PathVariable Long id,
+            /*
+            * можно добавить необязательных несколько параметров в запрос
+            */
+            @RequestParam(required = false) Long age)
+        {
         try {
-            System.out.println("id---------------- " + id);
+            UserEntity user =  userService.updateUser(id, age);
+            return ResponseEntity.ok(user);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity deleteUser(
+            @PathVariable Long id){
+        try {
             userService.deleteUser(id);
             return ResponseEntity.ok("ok");
         } catch (UserNotFoundException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("стандартная ошибка");
         }
     }
 

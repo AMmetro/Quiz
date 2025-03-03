@@ -1,7 +1,11 @@
 
 package com.example.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 
 @Entity                             //(name = "user_table") - кастомное имя можно указать
@@ -18,8 +22,19 @@ public class UserEntity {
     @Column(name = "id", updatable = false)
     private Long id;
 
+    /*
+     * @Transient - не сохраняет столбец в базу данных но делает его доступным для вычисления и
+     * возврата значения
+     */
+    @Transient
+    @Column(name = "age")
+    private Long age;
+
     @Column(name = "username", nullable = false, columnDefinition = "TEXT", unique = true)
     private String username;
+
+    @Column(name = "dob")
+    private LocalDate dob;
 
     private String password;
 
@@ -27,6 +42,7 @@ public class UserEntity {
      * Каскадное удаление задач если удаляется пользователь
      */
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    @JsonManagedReference      // убирает циклическую зависимость с TodoEntity друг на друга
     private List<TodoEntity> todos;
 
     public UserEntity() {
@@ -44,9 +60,39 @@ public class UserEntity {
         return id;
     }
 
+    public Integer getExistingPeriod() {
+        return Period.between(this.dob, LocalDate.now()).getDays();
+    }
+
     public void setId(Long id) {
         this.id = id;
     }
+
+    public void setDob(long year) {
+        LocalDate currentDate = LocalDate.now();
+        this.dob = currentDate.minusYears(year).withDayOfYear(1);
+    }
+
+    public LocalDate getDob() {
+        return dob;
+    }
+
+    public Long getCurrentAge (LocalDate dob) {
+        LocalDate currentDate = LocalDate.now();
+        if ((dob != null)) {
+            return (long) Period.between(dob, currentDate).getYears();
+        } else {
+            return null;
+        }
+    }
+
+    public Long getAge () {
+        return age;
+    }
+
+    public void setAge (Long age) {
+        this.age = age;
+    };
 
     public String getUsername() {
         return username;
