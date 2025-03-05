@@ -49,7 +49,9 @@ public class User {
         return this.age;
     }
 
-
+    public String getUsername() {
+        return this.username;
+    }
 
     public void setUserName(String userName) {
         this.username = userName ;
@@ -59,12 +61,20 @@ public class User {
         this.id = id;
     }
 
+    public Long getId() {
+        return this.id;
+    }
+
     public LocalDate getDob() {
         return dob;
     }
 
     public void setDob(LocalDate dob) {
         this.dob = dob;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
 //    @Override

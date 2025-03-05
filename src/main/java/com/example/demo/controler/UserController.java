@@ -11,16 +11,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("users")
+@RequestMapping("api/v1/user")
 public class UserController {
 
     @Autowired
-/*
-*  DI is equal use this.userService = new UserService
+/**   DI is equal use this.userService = new UserService
 */
     private UserService userService;
 
-    @PostMapping
+    @PostMapping(value="registration")
     public ResponseEntity registration(@RequestBody UserEntity user) {
         try {
             userService.registration(user);

@@ -33,16 +33,17 @@ public class UserService {
     public User findUser(Long id) throws UserNotFoundException {
         Optional<UserEntity> userDB = userRepo.findById(id);
         if (!!userDB.isPresent()) {
-            /*
-             *  применить .get() к ненайденному user вызывает exeption
+            /**  применить .get() к ненайденному user вызывает exeption
              */
             return User.toModelMapper(userDB.get());
         }
+        /** кастомное исключение его нужно или сразу перехватить тут или пробросить родителю
+         */
         throw new UserNotFoundException("пользователь c Id: " + id + " не найден");
     }
 
- /*
-  * @Transactional - транзакция, если ошибка то откат и возвращает не кастомную ошибку,
+ /**
+  * Transactional - транзакция, если ошибка то откат и возвращает не кастомную ошибку,
   * а ошибку о транзакции в целом
   */
 @Transactional
