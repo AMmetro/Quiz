@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.UserRequest;
 import com.example.demo.entity.UserEntity;
 import com.example.demo.exception.UserAlreadyExistException;
 import com.example.demo.exception.UserNotFoundException;
@@ -18,6 +19,22 @@ public class UserService {
     @Autowired
     private UserRepo userRepo;
 
+    public UserEntity create(UserRequest userRequest) throws UserAlreadyExistException {
+        String userName = userRequest.getUsername();
+        UserEntity existingUser = userRepo.findByUsername(userName);
+        if (existingUser != null) {
+            throw new UserAlreadyExistException("пользователь " + userRequest.getUsername() + " уже существуюет");
+        }
+        
+        UserEntity user = new UserEntity();
+        user.setUsername(userRequest.getUsername());
+        user.setPassword(userRequest.getPassword());
+        user.setAge(userRequest.getAge());
+        user.setDob(userRequest.getAge());
+        
+        return userRepo.save(user);
+    }
+
     public UserEntity registration(UserEntity user) throws UserAlreadyExistException {
         String userName = user.getUsername();
         UserEntity existingUser = userRepo.findByUsername(userName);
@@ -26,9 +43,7 @@ public class UserService {
         }
         user.setDob(user.getAge());
         return userRepo.save(user);
-    }
-
-    ;
+    };
 
     public User findUser(Long id) throws UserNotFoundException {
         Optional<UserEntity> userDB = userRepo.findById(id);

@@ -1,5 +1,6 @@
 package com.example.demo.controler;
 
+import com.example.demo.controller.UserController;
 import com.example.demo.entity.UserEntity;
 import com.example.demo.exception.UserNotFoundException;
 import com.example.demo.model.User;

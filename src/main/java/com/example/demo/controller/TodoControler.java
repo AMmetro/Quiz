@@ -1,11 +1,8 @@
-package com.example.demo.controler;
+package com.example.demo.controller;
 
 import com.example.demo.entity.TodoEntity;
-import com.example.demo.entity.UserEntity;
-import com.example.demo.exception.UserAlreadyExistException;
 import com.example.demo.model.Todo;
 import com.example.demo.service.TodoService;
-import com.example.demo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
