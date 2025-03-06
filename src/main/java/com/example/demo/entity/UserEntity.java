@@ -1,10 +1,10 @@
-
 package com.example.demo.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.List;
 
@@ -36,6 +36,7 @@ public class UserEntity {
     @Column(name = "dob")
     private LocalDate dob;
 
+    @Column(name = "password")
     private String password;
 
     /*
@@ -58,10 +59,6 @@ public class UserEntity {
 
     public Long getId() {
         return id;
-    }
-
-    public Integer getExistingPeriod() {
-        return Period.between(this.dob, LocalDate.now()).getDays();
     }
 
     public void setId(Long id) {

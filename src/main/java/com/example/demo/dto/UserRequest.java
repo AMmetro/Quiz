@@ -18,7 +18,6 @@ public class UserRequest {
     @Size(min = 6, message = "password must be more then 6 number")
     private String password;
 
-    // Геттеры и сеттеры
     public String getUsername() {
         return username;
     }

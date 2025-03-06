@@ -6,33 +6,45 @@ import com.example.demo.exception.UserAlreadyExistException;
 import com.example.demo.exception.UserNotFoundException;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepo;
+import com.example.demo.util.security.PasswordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
 @Service
 public class UserService {
 
+    private final PasswordService passwordService;
+
     @Autowired
     private UserRepo userRepo;
+
+    @Autowired
+    public UserService(PasswordService passwordService) {
+        this.passwordService = passwordService;
+    }
 
     public UserEntity create(UserRequest userRequest) throws UserAlreadyExistException {
         String userName = userRequest.getUsername();
         UserEntity existingUser = userRepo.findByUsername(userName);
+
         if (existingUser != null) {
             throw new UserAlreadyExistException("пользователь " + userRequest.getUsername() + " уже существуюет");
         }
-        
-        UserEntity user = new UserEntity();
-        user.setUsername(userRequest.getUsername());
-        user.setPassword(userRequest.getPassword());
-        user.setAge(userRequest.getAge());
-        user.setDob(userRequest.getAge());
-        
-        return userRepo.save(user);
+
+//todo - check if email have valid format
+
+        UserEntity newUser = new UserEntity();
+        newUser.setUsername(userRequest.getUsername());
+        newUser.setAge(userRequest.getAge());
+        newUser.setDob(userRequest.getAge());
+        passwordService.setPassword(newUser, userRequest.getPassword());
+
+        return userRepo.save(newUser);
     }
 
     public UserEntity registration(UserEntity user) throws UserAlreadyExistException {
