@@ -1,5 +1,7 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.LoginRequest;
+import com.example.demo.dto.LoginResponse;
 import com.example.demo.dto.UserRequest;
 import com.example.demo.entity.UserEntity;
 import com.example.demo.exception.UserAlreadyExistException;
@@ -59,6 +61,22 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("стандартная ошибка");
+        }
+    }
+
+    @PostMapping("login")
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
+        try {
+            LoginResponse response = userService.login(loginRequest);
+            return ResponseEntity.ok(response);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("An error occurred during login");
         }
     }
 
