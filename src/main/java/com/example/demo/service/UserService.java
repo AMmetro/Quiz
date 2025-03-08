@@ -1,11 +1,14 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.LoginRequest;
+import com.example.demo.dto.LoginResponse;
 import com.example.demo.dto.UserRequest;
 import com.example.demo.entity.UserEntity;
 import com.example.demo.exception.UserAlreadyExistException;
 import com.example.demo.exception.UserNotFoundException;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepo;
+import com.example.demo.util.security.JwtTokenService;
 import com.example.demo.util.security.PasswordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,13 +22,15 @@ import java.util.Optional;
 public class UserService {
 
     private final PasswordService passwordService;
+    private final JwtTokenService jwtTokenService;
 
     @Autowired
     private UserRepo userRepo;
 
     @Autowired
-    public UserService(PasswordService passwordService) {
+    public UserService(PasswordService passwordService, JwtTokenService jwtTokenService) {
         this.passwordService = passwordService;
+        this.jwtTokenService = jwtTokenService;
     }
 
     public UserEntity create(UserRequest userRequest) throws UserAlreadyExistException {
@@ -95,5 +100,38 @@ public class UserService {
         }
         userRepo.deleteById(id);
         return id;
+    }
+
+    public LoginResponse login(LoginRequest loginRequest) throws UserNotFoundException {
+
+        UserEntity user = userRepo.findByUsername(loginRequest.getUsername());
+
+        System.out.println("--------user-------------");
+        System.out.println(user);
+
+        if (user == null) {
+            throw new UserNotFoundException("User not found with username: " + loginRequest.getUsername());
+        }
+
+        System.out.println("---333333333-------");
+
+        if (!passwordService.isPasswordValid(loginRequest.getPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Invalid password");
+        }
+
+        System.out.println("---4444444444-------");
+        System.out.println(user.getUsername());
+
+//        if (user.isPasswordExpired()) {
+//            throw new IllegalStateException("Password has expired");
+//        }
+
+        String token = jwtTokenService.generateToken(user.getUsername());
+
+        System.out.println("---444444-------");
+        System.out.println(token);
+        System.out.println("------5555----------");
+
+        return new LoginResponse(token, user.getUsername());
     }
 }
