@@ -25,6 +25,10 @@ public interface UserRepo extends JpaRepository<UserEntity, Long> {
     * JBQL для более точноого запроса
     * @Query("SELECT u FROM user_entity_table WHERE u.username = ?1")
     */
-    UserEntity findByUsername(String username);
+//    UserEntity findByUsername(String username);
+
+    UserEntity findByEmail(String email);
 }
+
+
 

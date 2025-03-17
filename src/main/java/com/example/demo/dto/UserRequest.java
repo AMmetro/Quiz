@@ -6,25 +6,22 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 public class UserRequest {
-    
-    @NotBlank(message = "user name can not be empty")
-    @Size(min = 3, max = 50, message = "Length of name must be from 3 to 50 symbol")
-    private String username;
 
-    @NotNull(message = "Age can not be empty")
+    @NotBlank(message = "user email can not be empty")
+    @Size(min = 3, max = 50, message = "Length of email must be from 3 to 50 symbol")
+    private String email;
+
+//    @NotNull(message = "Age can not be empty")
     private Long age;
+
+    @NotNull(message = "String can not be empty")
+    private String login;
 
     @NotBlank(message = "Password can not be empty")
     @Size(min = 6, message = "password must be more then 6 number")
     private String password;
 
-    public String getUsername() {
-        return username;
-    }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
 
     public Long getAge() {
         return age;
@@ -42,11 +39,26 @@ public class UserRequest {
         this.password = password;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public UserEntity toEntity() {
         UserEntity entity = new UserEntity();
-        entity.setUsername(this.username);
         entity.setPassword(this.password);
         entity.setAge(this.age);
         return entity;
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
     }
 }

@@ -30,11 +30,14 @@ public class UserEntity {
     @Column(name = "age")
     private Long age;
 
-    @Column(name = "username", nullable = false, columnDefinition = "TEXT", unique = true)
-    private String username;
+    @Column(name = "email", nullable = false, unique = true)
+    private String email;
 
     @Column(name = "dob")
     private LocalDate dob;
+
+    @Column(name = "login", nullable = false)
+    private String login;
 
     @Column(name = "password")
     private String password;
@@ -89,14 +92,6 @@ public class UserEntity {
 
     public void setAge (Long age) {
         this.age = age;
-    };
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public String getPassword() {
@@ -110,11 +105,25 @@ public class UserEntity {
     @Override
     public String toString() {
         return "UserEntity{" +
-                "username='" + username + '\'' +
+                "login='" + login + '\'' +
                 ", password='" + password + '\'' +
                 '}';
-
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
+    }
 }
 

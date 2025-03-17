@@ -4,10 +4,12 @@ import com.example.demo.dto.LoginRequest;
 import com.example.demo.dto.LoginResponse;
 import com.example.demo.dto.UserRequest;
 import com.example.demo.entity.UserEntity;
+import com.example.demo.entity.QuestionEntity;
 import com.example.demo.exception.UserAlreadyExistException;
 import com.example.demo.exception.UserNotFoundException;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepo;
+import com.example.demo.repository.QuestionRepo;
 import com.example.demo.util.security.JwtTokenService;
 import com.example.demo.util.security.PasswordService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -28,35 +31,40 @@ public class UserService {
     private UserRepo userRepo;
 
     @Autowired
+    private QuestionRepo questionRepo;
+
+    @Autowired
     public UserService(PasswordService passwordService, JwtTokenService jwtTokenService) {
         this.passwordService = passwordService;
         this.jwtTokenService = jwtTokenService;
     }
 
     public UserEntity create(UserRequest userRequest) throws UserAlreadyExistException {
-        String userName = userRequest.getUsername();
-        UserEntity existingUser = userRepo.findByUsername(userName);
+        String userEmail = userRequest.getEmail();
+        UserEntity existingUser = userRepo.findByEmail(userEmail);
 
         if (existingUser != null) {
-            throw new UserAlreadyExistException("пользователь " + userRequest.getUsername() + " уже существуюет");
+            throw new UserAlreadyExistException("пользователь c email" + userRequest.getEmail() + " уже существуюет");
         }
 
 //todo - check if email have valid format
 
         UserEntity newUser = new UserEntity();
-        newUser.setUsername(userRequest.getUsername());
-        newUser.setAge(userRequest.getAge());
-        newUser.setDob(userRequest.getAge());
+        newUser.setLogin(userRequest.getLogin());
+//        newUser.setUsername(userRequest.getUsername());
+        newUser.setEmail(userRequest.getEmail());
+//        newUser.setAge(55L);
+//        newUser.setDob(userRequest.getAge());
         passwordService.setPassword(newUser, userRequest.getPassword());
 
         return userRepo.save(newUser);
     }
 
     public UserEntity registration(UserEntity user) throws UserAlreadyExistException {
-        String userName = user.getUsername();
-        UserEntity existingUser = userRepo.findByUsername(userName);
+        String email = user.getEmail();
+        UserEntity existingUser = userRepo.findByEmail(email);
         if (existingUser != null) {
-            throw new UserAlreadyExistException("пользователь " + user.getUsername() + " уже существуюет");
+            throw new UserAlreadyExistException("пользователь " + user.getEmail() + " уже существуюет");
         }
         user.setDob(user.getAge());
         return userRepo.save(user);
@@ -103,35 +111,15 @@ public class UserService {
     }
 
     public LoginResponse login(LoginRequest loginRequest) throws UserNotFoundException {
-
-        UserEntity user = userRepo.findByUsername(loginRequest.getUsername());
-
-        System.out.println("--------user-------------");
-        System.out.println(user);
-
+        UserEntity user = userRepo.findByEmail("tesl.ru");
         if (user == null) {
-            throw new UserNotFoundException("User not found with username: " + loginRequest.getUsername());
+            throw new UserNotFoundException("User not found with username: " + loginRequest.getPassword());
         }
-
-        System.out.println("---333333333-------");
-
         if (!passwordService.isPasswordValid(loginRequest.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("Invalid password");
         }
-
-        System.out.println("---4444444444-------");
-        System.out.println(user.getUsername());
-
-//        if (user.isPasswordExpired()) {
-//            throw new IllegalStateException("Password has expired");
-//        }
-
-        String token = jwtTokenService.generateToken(user.getUsername());
-
-        System.out.println("---444444-------");
-        System.out.println(token);
-        System.out.println("------55555----------");
-
-        return new LoginResponse(token, user.getUsername());
+        String token = jwtTokenService.generateToken(user.getLogin());
+        return new LoginResponse(token, user.getLogin());
     }
+
 }

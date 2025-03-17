@@ -32,7 +32,7 @@ public class UserController {
     public ResponseEntity<?> create(@Valid @RequestBody UserRequest userRequest) {
         try {
             UserEntity user = userService.create(userRequest);
-            return ResponseEntity.ok("пользователь " + user.getUsername() + " создан");
+            return ResponseEntity.ok("пользователь " + user.getEmail() + " создан");
         } catch (UserAlreadyExistException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
@@ -56,7 +56,7 @@ public class UserController {
     public ResponseEntity registration(@RequestBody UserEntity user) {
         try {
             userService.registration(user);
-            return ResponseEntity.ok("пользователь " + user.getUsername() + " создан");
+            return ResponseEntity.ok("пользователь " + user.getEmail() + " создан");
         } catch (UserAlreadyExistException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
@@ -113,17 +113,6 @@ public class UserController {
             UserEntity user = userService.updateUser(id, age);
             return ResponseEntity.ok(user);
         } catch (IllegalStateException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity deleteUser(
-            @PathVariable Long id) {
-        try {
-            userService.deleteUser(id);
-            return ResponseEntity.ok("ok");
-        } catch (UserNotFoundException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

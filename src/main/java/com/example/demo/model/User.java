@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class User {
     private Long id;
-    private String username;
+//    private String username;
     private LocalDate dob;
     private List<Todo> todos;
     private Long age;
@@ -26,7 +26,7 @@ public class User {
         User model = new User();
 
         model.setId(entity.getId());
-        model.setUserName(entity.getUsername());
+//        model.setUserName(entity.getUsername());
         model.setAge(entity.getCurrentAge(entity.getDob()));
         model.setTodos(entity.getTodos().stream().map(Todo::toModelMapper).collect(Collectors.toList())) ;
 
@@ -49,13 +49,13 @@ public class User {
         return this.age;
     }
 
-    public String getUsername() {
-        return this.username;
-    }
+//    public String getUsername() {
+//        return this.username;
+//    }
 
-    public void setUserName(String userName) {
-        this.username = userName ;
-    }
+//    public void setUserName(String userName) {
+//        this.username = userName ;
+//    }
 
     public void setId(Long id) {
         this.id = id;
@@ -73,9 +73,9 @@ public class User {
         this.dob = dob;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+//    public void setUsername(String username) {
+//        this.username = username;
+//    }
 
 //    @Override
 //    public String toString() {
