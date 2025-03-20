@@ -1,17 +1,14 @@
 package com.example.demo.repository;
 
 import com.example.demo.entity.QuestionEntity;
-import com.example.demo.model.Question;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface QuestionRepo extends JpaRepository<QuestionEntity, String> {
+public interface QuestionRepo extends PagingAndSortingRepository<QuestionEntity, String> {
+    Page<QuestionEntity> findAll(Pageable pageable);
 }
-
-//@Repository
-//public interface QuestionRepo extends JpaRepository<Question, Long> {
-//    Question findAll(Question pageable);
-//}
 
 

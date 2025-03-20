@@ -2,14 +2,20 @@ package com.example.demo.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
@@ -26,9 +32,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
             .csrf().disable()
             .authorizeRequests()
-            .antMatchers("/**").permitAll()  // Разрешаем доступ ко всем URL
-            // .httpBasic() базовая аутентификация нам не нужна
+            .antMatchers("/testing/**").permitAll()
+            .antMatchers("/sa/users").permitAll()
+            .antMatchers("/sa/quiz/questions").authenticated() // Требуется аутентификация
+            .antMatchers("/sa/quiz/questions/{id}").hasRole("ADMIN") //Только для роли ADMIN
+            .anyRequest().authenticated()
             .and()
-            .headers().frameOptions().disable();  // Разрешаем отображение в iframe (для H2 консоли)
+            .httpBasic();
+            // .headers().frameOptions().disable();  // Разрешаем отображение в iframe (для H2 консоли);
     }
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.inMemoryAuthentication()
+            .withUser("admin")
+            .password(passwordEncoder().encode("qwerty"))
+            .roles("ADMIN");
+    }
+
 } 

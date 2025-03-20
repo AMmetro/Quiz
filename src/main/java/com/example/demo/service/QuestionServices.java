@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,23 +26,6 @@ public class QuestionServices {
         this.questionRepo = questionRepo;
     }
 
-
-//    public Question getAllQuestions(PaginationParameters paginationParameters) {
-//        List<QuestionEntity> allQuestion = questionRepo.findAll();
-//
-//        Long totalCount = questionRepo.count();
-//        int totalPages = (int) Math.ceil((double) totalCount / paginationParameters.getSize());
-//
-//        Question pageable = new Question(
-//                totalPages,
-//                paginationParameters.getPage(),
-//                paginationParameters.getSize(),
-//                totalCount,
-//                allQuestion
-//        );
-//
-//        return pageable;
-//    }
 
     public Question getAllQuestions(PaginationParameters paginationParameters) {
         // Создаем объект Pageable, учитывая пагинацию и сортировку

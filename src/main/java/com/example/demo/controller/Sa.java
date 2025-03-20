@@ -9,16 +9,18 @@ import com.example.demo.service.QuestionServices;
 import com.example.demo.service.UserService;
 import com.example.demo.utils.pagination.PaginationParameters;
 import com.example.demo.utils.pagination.SortQueryUtils;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -27,6 +29,7 @@ public class Sa {
 
     @Autowired
     private UserService userService;
+    
     @Autowired
     private QuestionServices questionServices;
 
@@ -42,18 +45,6 @@ public class Sa {
         }
     }
 
-    @ResponseStatus(org.springframework.http.HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        return errors;
-    }
-
     @GetMapping("/quiz/questions")
     public ResponseEntity<?> getAllQuestions(
             @RequestParam(value = "pageNumber", required = false) Integer pageNumber,
@@ -62,16 +53,6 @@ public class Sa {
             @RequestParam(value = "sortDirection", required = false) String sortDirection
     ) {
         PaginationParameters paginationParameters = SortQueryUtils.getPaginationParameters(pageNumber, pageSize, sortBy, sortDirection);
-
-//        System.out.printf("================getSortBy=================== ");
-//        System.out.printf(paginationParameters.getSortBy());
-//        System.out.printf("================getSortDirection=================== ");
-//        System.out.printf(paginationParameters.getSortDirection());
-//        System.out.printf("================getSize===================  ");
-//        System.out.printf(String.valueOf(paginationParameters.getSize()));
-//        System.out.printf("================getPage===================  ");
-//        System.out.printf(String.valueOf(paginationParameters.getPage()));
-
         try {
             return ResponseEntity.ok(questionServices.getAllQuestions(paginationParameters));
         } catch (Exception e) {
@@ -109,20 +90,28 @@ public class Sa {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/quiz/questions/{id}")
-    public ResponseEntity<?> deleteQuestion(@PathVariable String id ) {
+    public ResponseEntity<?> deleteQuestion(@PathVariable String id) {
         try {
             questionServices.deleteQuestion(id);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body("Ошибка при удалении вопроса: " + e.getMessage());
         }
     }
 
-
-
-
-
+    @ResponseStatus(org.springframework.http.HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return errors;
+    }
 }
 
 

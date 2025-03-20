@@ -15,7 +15,6 @@ import java.time.LocalDate;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class User {
     private Long id;
-//    private String username;
     private LocalDate dob;
     private List<Todo> todos;
     private Long age;
@@ -49,14 +48,6 @@ public class User {
         return this.age;
     }
 
-//    public String getUsername() {
-//        return this.username;
-//    }
-
-//    public void setUserName(String userName) {
-//        this.username = userName ;
-//    }
-
     public void setId(Long id) {
         this.id = id;
     }
@@ -72,14 +63,5 @@ public class User {
     public void setDob(LocalDate dob) {
         this.dob = dob;
     }
-
-//    public void setUsername(String username) {
-//        this.username = username;
-//    }
-
-//    @Override
-//    public String toString() {
-//        return "User{id=" + id + ", name='" + username + "'}";
-//    }
 
 }
