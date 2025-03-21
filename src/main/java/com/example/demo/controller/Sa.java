@@ -76,7 +76,7 @@ public class Sa {
             QuestionEntity result = questionServices.updateQuestion(id, question);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(404).body(e.getMessage());
         }
     }
 
@@ -86,7 +86,7 @@ public class Sa {
             questionServices.publishQuestion(id);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(404).body(e.getMessage());
         }
     }
 
@@ -97,7 +97,7 @@ public class Sa {
             questionServices.deleteQuestion(id);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Ошибка при удалении вопроса: " + e.getMessage());
+            return ResponseEntity.status(404).body("Вопрос с ID " + id + " не найден или произошла ошибка: " + e.getMessage());
         }
     }
 

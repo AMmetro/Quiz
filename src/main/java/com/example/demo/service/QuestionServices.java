@@ -65,7 +65,7 @@ public class QuestionServices {
     public void publishQuestion(String id) throws UserNotFoundException {
         Optional<QuestionEntity> existingQuestion = questionRepo.findById(id);
         if (existingQuestion.isEmpty()) {
-            throw new UserNotFoundException("User not found with id: " + id);
+            throw new UserNotFoundException("Question with id: " + id  + " not found");
         }
         QuestionEntity questionToUpdate = existingQuestion.get();
         questionToUpdate.setPublished(true);
@@ -76,7 +76,7 @@ public class QuestionServices {
     public void deleteQuestion(String id) throws UserNotFoundException {
         Optional<QuestionEntity> deletedQuestion = questionRepo.findById(id);
         if (deletedQuestion.isEmpty()) {
-            throw new UserNotFoundException("User not found with id: " + id);
+            throw new UserNotFoundException("Question with id: " + id + " not found");
         }
         questionRepo.deleteById(id);
     }
