@@ -33,6 +33,17 @@ public class Sa {
     @Autowired
     private QuestionServices questionServices;
 
+
+    @GetMapping(value = "users")
+    public ResponseEntity<?> getUsers() {
+        try {
+            List<UserEntity> users = userService.getAllUsers();
+            return ResponseEntity.ok(users);
+        }  catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @PostMapping(value = "users")
     public ResponseEntity<?> create(@Valid @RequestBody UserRequest userRequest) {
         try {

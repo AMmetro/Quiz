@@ -39,6 +39,33 @@ public class UserService {
         this.jwtTokenService = jwtTokenService;
     }
 
+    public List<UserEntity> getAllUsers()  {
+        List<UserEntity> allUserDB = userRepo.findAll();
+
+//   return     {
+//            "pagesCount": 0,
+//                "page": 0,
+//                "pageSize": 0,
+//                "totalCount": 0,
+//                "items": allUserDB
+//        }
+
+        return allUserDB;
+    }
+
+
+    public User findUser(Long id) throws UserNotFoundException {
+        Optional<UserEntity> userDB = userRepo.findById(id);
+        if (!!userDB.isPresent()) {
+            /**  применить .get() к ненайденному user вызывает exeption
+             */
+            return User.toModelMapper(userDB.get());
+        }
+        /** кастомное исключение его нужно или сразу перехватить тут или пробросить родителю
+         */
+        throw new UserNotFoundException("пользователь c Id: " + id + " не найден");
+    }
+
     public UserEntity create(UserRequest userRequest) throws UserAlreadyExistException {
         String userEmail = userRequest.getEmail();
         UserEntity existingUser = userRepo.findByEmail(userEmail);
@@ -70,17 +97,6 @@ public class UserService {
         return userRepo.save(user);
     };
 
-    public User findUser(Long id) throws UserNotFoundException {
-        Optional<UserEntity> userDB = userRepo.findById(id);
-        if (!!userDB.isPresent()) {
-            /**  применить .get() к ненайденному user вызывает exeption
-             */
-            return User.toModelMapper(userDB.get());
-        }
-        /** кастомное исключение его нужно или сразу перехватить тут или пробросить родителю
-         */
-        throw new UserNotFoundException("пользователь c Id: " + id + " не найден");
-    }
 
  /**
   * Transactional - транзакция, если ошибка то откат и возвращает не кастомную ошибку,
