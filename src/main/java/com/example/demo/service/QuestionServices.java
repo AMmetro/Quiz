@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.QuestionDTO;
+//import com.example.demo.dto.QuestionDTO;
+import com.example.demo.dto.question.PostQuestionRequest;
 import com.example.demo.entity.QuestionEntity;
 import com.example.demo.exception.UserNotFoundException;
 import com.example.demo.model.Question;
@@ -46,13 +47,13 @@ public class QuestionServices {
         );
     }
 
-    public QuestionEntity createQuestion(QuestionDTO question) {
+    public QuestionEntity createQuestion(PostQuestionRequest question) {
         QuestionEntity newQuestion = new QuestionEntity(question.getBody(), question.getCorrectAnswers());
         QuestionEntity savedQuestion = questionRepo.save(newQuestion);
         return savedQuestion;
     }
 
-    public QuestionEntity updateQuestion(String id, QuestionDTO question) throws UserNotFoundException {
+    public QuestionEntity updateQuestion(String id, PostQuestionRequest question) throws UserNotFoundException {
         Optional<QuestionEntity> existingQuestion = questionRepo.findById(id);
         if (existingQuestion.isEmpty()) {
             throw new UserNotFoundException("User not found with id: " + id);
@@ -62,13 +63,13 @@ public class QuestionServices {
         return savedQuestion;
     }
 
-    public void publishQuestion(String id) throws UserNotFoundException {
+    public void publishQuestion(String id, Boolean publishedStatus) throws UserNotFoundException {
         Optional<QuestionEntity> existingQuestion = questionRepo.findById(id);
         if (existingQuestion.isEmpty()) {
             throw new UserNotFoundException("Question with id: " + id  + " not found");
         }
         QuestionEntity questionToUpdate = existingQuestion.get();
-        questionToUpdate.setPublished(true);
+        questionToUpdate.setPublished(publishedStatus);
         questionRepo.save(questionToUpdate);
 //        Optional<QuestionEntity> updatedQuestion = questionRepo.updateQuestion(id);
     }

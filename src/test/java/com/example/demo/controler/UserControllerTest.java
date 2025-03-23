@@ -32,7 +32,7 @@ class UserControllerTest {
     @BeforeEach
     void setUp() {
         testUser = new User();
-        testUser.setId(1L);
+        testUser.setId("1");
         testUser.setUsername("testUser");
 
         testUserEntity = new UserEntity();

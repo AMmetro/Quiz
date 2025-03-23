@@ -1,10 +1,12 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.QuestionDTO;
 import com.example.demo.dto.UserRequest;
+import com.example.demo.dto.question.PostQuestionRequest;
+import com.example.demo.dto.question.PublishQuestionRequest;
 import com.example.demo.entity.UserEntity;
 import com.example.demo.entity.QuestionEntity;
 import com.example.demo.exception.UserAlreadyExistException;
+import com.example.demo.model.User;
 import com.example.demo.service.QuestionServices;
 import com.example.demo.service.UserService;
 import com.example.demo.utils.pagination.PaginationParameters;
@@ -35,9 +37,9 @@ public class Sa {
 
 
     @GetMapping(value = "users")
-    public ResponseEntity<?> getUsers() {
+    public Object getUsers() {
         try {
-            List<UserEntity> users = userService.getAllUsers();
+            Map<String, Object> users = (Map<String, Object>) userService.getAllUsers();
             return ResponseEntity.ok(users);
         }  catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -47,12 +49,12 @@ public class Sa {
     @PostMapping(value = "users")
     public ResponseEntity<?> create(@Valid @RequestBody UserRequest userRequest) {
         try {
-            UserEntity user = userService.create(userRequest);
-            return ResponseEntity.ok("пользователь " + user.getEmail() + "создан");
+            User user = userService.create(userRequest);
+            return ResponseEntity.status(HttpStatus.CREATED).body(user);
         } catch (UserAlreadyExistException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("стандартная ошибка");
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
@@ -72,7 +74,7 @@ public class Sa {
     }
 
     @PostMapping("/quiz/questions")
-    public ResponseEntity<?> createQuestion(@Valid @RequestBody QuestionDTO question) {
+    public ResponseEntity<?> createQuestion(@Valid @RequestBody PostQuestionRequest question) {
         try {
             QuestionEntity result = questionServices.createQuestion(question);
             return new ResponseEntity<>(result, HttpStatus.CREATED);
@@ -82,7 +84,7 @@ public class Sa {
     }
 
     @PutMapping("/quiz/questions/{id}")
-    public ResponseEntity<?> updateQuestion(@PathVariable String id, @Valid @RequestBody QuestionDTO question ) {
+    public ResponseEntity<?> updateQuestion(@PathVariable String id, @Valid @RequestBody PostQuestionRequest question ) {
         try {
             QuestionEntity result = questionServices.updateQuestion(id, question);
             return ResponseEntity.noContent().build();
@@ -92,9 +94,9 @@ public class Sa {
     }
 
     @PutMapping("/quiz/questions/{id}/publish")
-    public ResponseEntity<?> publishQuestion(@PathVariable String id ) {
+    public ResponseEntity<?> publishQuestion(@PathVariable String id, @Valid @RequestBody PublishQuestionRequest question ) {
         try {
-            questionServices.publishQuestion(id);
+            questionServices.publishQuestion(id, question.getPublished() );
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
             return ResponseEntity.status(404).body(e.getMessage());

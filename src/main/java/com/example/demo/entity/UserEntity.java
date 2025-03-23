@@ -1,11 +1,14 @@
 package com.example.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Entity                             //(name = "user_table") - кастомное имя можно указать
@@ -41,6 +44,15 @@ public class UserEntity {
 
     @Column(name = "password")
     private String password;
+
+    @Column(name = "confirmation_code")
+    private String confirmationCode;
+
+    @Column(name = "confirmed")
+    private boolean confirmed;
+
+    @Column
+    private LocalDateTime createdAt;
 
     /*
      * Каскадное удаление задач если удаляется пользователь
@@ -86,6 +98,11 @@ public class UserEntity {
         }
     }
 
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now(ZoneOffset.UTC);
+    }
+
     public Long getAge () {
         return age;
     }
@@ -125,5 +142,30 @@ public class UserEntity {
     public void setLogin(String login) {
         this.login = login;
     }
+
+    public String getConfirmationCode() {
+        return confirmationCode;
+    }
+
+    public void setConfirmationCode(String confirmationCode) {
+        this.confirmationCode = confirmationCode;
+    }
+
+    public boolean isConfirmed() {
+        return confirmed;
+    }
+
+    public void setConfirmed(boolean confirmed) {
+        this.confirmed = confirmed;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
 }
 

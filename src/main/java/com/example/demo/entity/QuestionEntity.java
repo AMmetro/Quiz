@@ -6,10 +6,6 @@ import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -41,10 +37,8 @@ public class QuestionEntity {
     @Column(name = "correct_answers", columnDefinition = "jsonb")
     private List<String> correctAnswers;
 
-    //    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSS'Z'")
     @Column(name = "created_at", nullable = false, updatable = false)
     private String createdAt;
-//    private LocalDateTime createdAt;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSS'Z'")
     @Column(name = "updated_at", nullable = true)
@@ -77,7 +71,6 @@ public class QuestionEntity {
         this.correctAnswers = correctAnswers;
         LocalDateTime createdAt = LocalDateTime.now(ZoneOffset.UTC);
         this.createdAt = createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
-//        this.createdAt = LocalDateTime.now(ZoneOffset.UTC);
         this.updatedAt = null;
         this.published = false;
     }

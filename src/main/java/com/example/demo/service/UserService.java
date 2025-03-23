@@ -1,12 +1,14 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.LoginRequest;
-import com.example.demo.dto.LoginResponse;
+import com.example.demo.dto.login.LoginResponse;
 import com.example.demo.dto.UserRequest;
+import com.example.demo.dto.login.LoginRequest;
 import com.example.demo.entity.UserEntity;
 import com.example.demo.entity.QuestionEntity;
 import com.example.demo.exception.UserAlreadyExistException;
 import com.example.demo.exception.UserNotFoundException;
+import com.example.demo.model.Question;
+import com.example.demo.model.Todo;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepo;
 import com.example.demo.repository.QuestionRepo;
@@ -17,9 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class UserService {
@@ -39,24 +39,23 @@ public class UserService {
         this.jwtTokenService = jwtTokenService;
     }
 
-    public List<UserEntity> getAllUsers()  {
+    public Map<String, Object> getAllUsers()  {
         List<UserEntity> allUserDB = userRepo.findAll();
 
-//   return     {
-//            "pagesCount": 0,
-//                "page": 0,
-//                "pageSize": 0,
-//                "totalCount": 0,
-//                "items": allUserDB
-//        }
+        Map<String, Object> response = new HashMap<>();
+        response.put("pagesCount", 0);
+        response.put("page", 0);
+        response.put("pageSize", 0);
+        response.put("totalCount", allUserDB.size());
+        response.put("items", allUserDB);
 
-        return allUserDB;
+        return response;
     }
 
 
     public User findUser(Long id) throws UserNotFoundException {
         Optional<UserEntity> userDB = userRepo.findById(id);
-        if (!!userDB.isPresent()) {
+        if (userDB.isPresent()) {
             /**  применить .get() к ненайденному user вызывает exeption
              */
             return User.toModelMapper(userDB.get());
@@ -66,30 +65,24 @@ public class UserService {
         throw new UserNotFoundException("пользователь c Id: " + id + " не найден");
     }
 
-    public UserEntity create(UserRequest userRequest) throws UserAlreadyExistException {
+    public User create(UserRequest userRequest) throws UserAlreadyExistException {
         String userEmail = userRequest.getEmail();
-        UserEntity existingUser = userRepo.findByEmail(userEmail);
-
-        if (existingUser != null) {
-            throw new UserAlreadyExistException("пользователь c email" + userRequest.getEmail() + " уже существуюет");
+        Optional<UserEntity> existingUser = userRepo.findByEmail(userEmail);
+        if (existingUser.isPresent()) {
+            throw new UserAlreadyExistException("пользователь c email " + userRequest.getEmail() + " уже существуюет");
         }
-
-//todo - check if email have valid format
-
         UserEntity newUser = new UserEntity();
         newUser.setLogin(userRequest.getLogin());
-//        newUser.setUsername(userRequest.getUsername());
         newUser.setEmail(userRequest.getEmail());
-//        newUser.setAge(55L);
-//        newUser.setDob(userRequest.getAge());
+        newUser.setConfirmed(true);
         passwordService.setPassword(newUser, userRequest.getPassword());
 
-        return userRepo.save(newUser);
+        return User.toModelMapper(userRepo.save(newUser));
     }
 
     public UserEntity registration(UserEntity user) throws UserAlreadyExistException {
         String email = user.getEmail();
-        UserEntity existingUser = userRepo.findByEmail(email);
+        UserEntity existingUser = userRepo.findByEmail(email).get();
         if (existingUser != null) {
             throw new UserAlreadyExistException("пользователь " + user.getEmail() + " уже существуюет");
         }
@@ -127,7 +120,7 @@ public class UserService {
     }
 
     public LoginResponse login(LoginRequest loginRequest) throws UserNotFoundException {
-        UserEntity user = userRepo.findByEmail("tesl.ru");
+        UserEntity user = userRepo.findByEmail(loginRequest.getEmail()).get();
         if (user == null) {
             throw new UserNotFoundException("User not found with username: " + loginRequest.getPassword());
         }
