@@ -15,6 +15,7 @@ import com.example.demo.repository.QuestionRepo;
 import com.example.demo.util.security.JwtTokenService;
 import com.example.demo.util.security.PasswordService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,12 @@ public class UserService {
 
     private final PasswordService passwordService;
     private final JwtTokenService jwtTokenService;
+
+    @Value("${jwt.refreshExpiration}")
+    private Long refreshExpiration;
+
+    @Value("${jwt.accesExpiration}")
+    private Long accesExpiration;
 
     @Autowired
     private UserRepo userRepo;
@@ -39,7 +46,7 @@ public class UserService {
         this.jwtTokenService = jwtTokenService;
     }
 
-    public Map<String, Object> getAllUsers()  {
+    public Map<String, Object> getAllUsers() {
         List<UserEntity> allUserDB = userRepo.findAll();
 
         Map<String, Object> response = new HashMap<>();
@@ -67,7 +74,7 @@ public class UserService {
 
     public User create(UserRequest userRequest) throws UserAlreadyExistException {
         String userEmail = userRequest.getEmail();
-        Optional<UserEntity> existingUser = userRepo.findByEmail(userEmail);
+        Optional<UserEntity> existingUser = userRepo.findByEmailOrLogin(userEmail);
         if (existingUser.isPresent()) {
             throw new UserAlreadyExistException("пользователь c email " + userRequest.getEmail() + " уже существуюет");
         }
@@ -82,20 +89,22 @@ public class UserService {
 
     public UserEntity registration(UserEntity user) throws UserAlreadyExistException {
         String email = user.getEmail();
-        UserEntity existingUser = userRepo.findByEmail(email).get();
+        UserEntity existingUser = userRepo.findByEmailOrLogin(email).get();
         if (existingUser != null) {
             throw new UserAlreadyExistException("пользователь " + user.getEmail() + " уже существуюет");
         }
         user.setDob(user.getAge());
         return userRepo.save(user);
-    };
+    }
+
+    ;
 
 
- /**
-  * Transactional - транзакция, если ошибка то откат и возвращает не кастомную ошибку,
-  * а ошибку о транзакции в целом
-  */
-@Transactional
+    /**
+     * Transactional - транзакция, если ошибка то откат и возвращает не кастомную ошибку,
+     * а ошибку о транзакции в целом
+     */
+    @Transactional
     public UserEntity updateUser(Long id, Long age) throws IllegalStateException {
         /*
          * В контексте Transactional выводит в консоль ошибку и прерывается
@@ -120,15 +129,17 @@ public class UserService {
     }
 
     public LoginResponse login(LoginRequest loginRequest) throws UserNotFoundException {
-        UserEntity user = userRepo.findByEmail(loginRequest.getEmail()).get();
-        if (user == null) {
-            throw new UserNotFoundException("User not found with username: " + loginRequest.getPassword());
+        Optional<UserEntity> user = userRepo.findByEmailOrLogin(loginRequest.getLoginOrEmail());
+        if (!user.isPresent()) {
+            throw new UserNotFoundException("User not found: " + loginRequest.getLoginOrEmail());
         }
-        if (!passwordService.isPasswordValid(loginRequest.getPassword(), user.getPassword())) {
+        if (!passwordService.isPasswordValid(loginRequest.getPassword(), user.get().getPassword())) {
             throw new IllegalArgumentException("Invalid password");
         }
-        String token = jwtTokenService.generateToken(user.getLogin());
-        return new LoginResponse(token, user.getLogin());
+        String accessToken = jwtTokenService.generateToken(user.get().getLogin(), accesExpiration);
+        String refreshToken = jwtTokenService.generateToken(user.get().getLogin(), refreshExpiration);
+        LoginResponse response = new LoginResponse(accessToken, refreshToken);
+        return response;
     }
 
 }

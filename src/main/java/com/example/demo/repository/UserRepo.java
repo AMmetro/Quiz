@@ -4,8 +4,10 @@ import com.example.demo.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /*
@@ -25,13 +27,13 @@ import java.util.Optional;
 public interface UserRepo extends JpaRepository<UserEntity, Long> {
 
     /*
-    * JBQL для более точноого запроса
-    * @Query("SELECT u FROM user_entity_table WHERE u.username = ?1")
+    * JPQL для более точного запроса
     */
-//    UserEntity findByUsername(String username);
+    @Query("SELECT u FROM UserEntity u WHERE u.email = :input OR u.login = :input")
+    Optional<UserEntity> findByEmailOrLogin(@Param("input") String input);
 
-    Optional<UserEntity> findByEmail(String email);
 }
+
 
 
 

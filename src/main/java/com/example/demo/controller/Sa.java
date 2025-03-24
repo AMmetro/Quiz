@@ -52,7 +52,7 @@ public class Sa {
             User user = userService.create(userRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body(user);
         } catch (UserAlreadyExistException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body("user with email " + userRequest.getEmail() + " all ready exist");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

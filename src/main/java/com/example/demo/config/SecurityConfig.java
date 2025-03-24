@@ -1,5 +1,6 @@
 package com.example.demo.config;
 
+import com.example.demo.util.security.AppUserRole;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -33,6 +34,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .csrf().disable()
             .authorizeRequests()
             .antMatchers("/testing/**").permitAll()
+            .antMatchers("/auth/login").permitAll()
             .antMatchers("/sa/users").permitAll()
             .antMatchers("/sa/quiz/questions").authenticated() // Требуется аутентификация
             .antMatchers("/sa/quiz/questions/{id}").hasRole("ADMIN") //Только для роли ADMIN
@@ -47,11 +49,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         auth.inMemoryAuthentication()
             .withUser("admin")
             .password(passwordEncoder().encode("qwerty"))
-            .roles("ADMIN")
+            .roles(String.valueOf(AppUserRole.ADMIN))
             .and()
             .withUser("user")
             .password(passwordEncoder().encode("qwerty"))
-            .roles("USER");
+            .roles(String.valueOf(AppUserRole.ADMIN));
     }
 
 } 

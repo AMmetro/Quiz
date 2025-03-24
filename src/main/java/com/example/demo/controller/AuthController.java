@@ -5,7 +5,6 @@ import com.example.demo.dto.login.LoginResponse;
 import com.example.demo.dto.RegistrationRequest;
 import com.example.demo.dto.ErrorResponse;
 import com.example.demo.dto.login.LoginRequest;
-import com.example.demo.entity.UserEntity;
 import com.example.demo.exception.UserNotFoundException;
 import com.example.demo.repository.UserRepo;
 import com.example.demo.service.AuthService;
@@ -18,12 +17,13 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 public class AuthController {
 
     private final PasswordService passwordService;
@@ -38,7 +38,7 @@ public class AuthController {
     private final AuthService authService;
 
     @Autowired
-    public AuthController(AuthService authService,PasswordService passwordService, JwtTokenService jwtTokenService) {
+    public AuthController(AuthService authService, PasswordService passwordService, JwtTokenService jwtTokenService) {
         this.authService = authService;
         this.passwordService = passwordService;
         this.jwtTokenService = jwtTokenService;
@@ -57,7 +57,7 @@ public class AuthController {
             return ResponseEntity.ok("Input data is accepted. Email with confirmation code will be send to passed email address.");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorResponse(
-                List.of(new ErrorResponse.ErrorMessage(e.getMessage(), "email"))
+                    List.of(new ErrorResponse.ErrorMessage(e.getMessage(), "email"))
             ));
         }
     }
@@ -65,62 +65,38 @@ public class AuthController {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
         List<ErrorResponse.ErrorMessage> errors = ex.getBindingResult()
-            .getAllErrors()
-            .stream()
-            .map(error -> new ErrorResponse.ErrorMessage(
-                error.getDefaultMessage(),
-                ((FieldError) error).getField()
-            ))
-            .collect(Collectors.toList());
-        
+                .getAllErrors()
+                .stream()
+                .map(error -> new ErrorResponse.ErrorMessage(
+                        error.getDefaultMessage(),
+                        ((FieldError) error).getField()
+                ))
+                .collect(Collectors.toList());
+
         return ResponseEntity.badRequest().body(new ErrorResponse(errors));
     }
 
 
-    //    @PostMapping("login")
-//    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
-//        try {
-//            LoginResponse response = userService.login(loginRequest);
-//            return ResponseEntity.ok(response);
-//        } catch (UserNotFoundException e) {
-//            return ResponseEntity.badRequest().body(e.getMessage());
-//        } catch (IllegalArgumentException e) {
-//            return ResponseEntity.badRequest().body(e.getMessage());
-//        } catch (IllegalStateException e) {
-//            return ResponseEntity.badRequest().body(e.getMessage());
-//        } catch (Exception e) {
-//            return ResponseEntity.badRequest().body("An error occurred during login");
-//        }
-//    }
-
-
     @PostMapping("/login")
-    public LoginResponse login(@Valid @RequestBody LoginRequest loginRequest) throws UserNotFoundException {
+    public Object login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) throws UserNotFoundException {
 
-        LoginResponse response = userService.login(loginRequest);
-        return ResponseEntity.ok(response).getBody();
+        try {
+            LoginResponse result = userService.login(loginRequest);
 
-//                try {
-//            LoginResponse response = userService.login(loginRequest);
-//            return ResponseEntity.ok(response);
-//        } catch (UserNotFoundException e) {
-//            return ResponseEntity.badRequest();
-//        }
+            javax.servlet.http.Cookie refreshTokenCookie = new javax.servlet.http.Cookie("refreshToken", result.getRefreshToken() );
+            refreshTokenCookie.setHttpOnly(true); // Защита от XSS-атак
+            refreshTokenCookie.setSecure(true);  // Только через HTTPS
+            refreshTokenCookie.setPath("/");    // Действует для всех путей
+            refreshTokenCookie.setMaxAge(24 * 60 * 60); // Срок действия: 24 часа
+            response.addCookie(refreshTokenCookie);
+            return ResponseEntity.ok(result.getAccessToken()).getBody();
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.badRequest().body("account for login not found");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e);
+        }
 
-
-
-//        UserEntity user = userRepo.findByEmail(loginRequest.getEmail()).get();
-//        if (user == null) {
-//            throw new UserNotFoundException("User not found with email: " + loginRequest.getEmail());
-//        }
-//        if (!passwordService.isPasswordValid(loginRequest.getPassword(), user.getPassword())) {
-//            throw new IllegalArgumentException("Invalid password");
-//        }
-//        String token = jwtTokenService.generateToken(user.getLogin());
-//        return new LoginResponse(token, user.getLogin());
     }
 
 
-
-
-} 
+}

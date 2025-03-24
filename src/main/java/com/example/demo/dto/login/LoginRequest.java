@@ -8,9 +8,8 @@ public class LoginRequest {
     @NotBlank(message = "Password cannot be empty")
     private String password;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email format")
-    private String email;
+    @NotBlank(message = "Email or Login is required")
+    private String loginOrEmail;
 
     public String getPassword() {
         return password;
@@ -20,11 +19,11 @@ public class LoginRequest {
         this.password = password;
     }
 
-    public String getEmail() {
-        return email;
+    public String getLoginOrEmail() {
+        return loginOrEmail;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setLoginOrEmail(String loginOrEmail) {
+        this.loginOrEmail = loginOrEmail;
     }
 }

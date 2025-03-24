@@ -17,21 +17,16 @@ public class JwtTokenService {
     @Value("${jwt.secret}")
     private String secret;
 
-    @Value("${jwt.expiration}")
-    private Long expiration;
-
     private String getEncodedSecret() {
         return Base64.getEncoder().encodeToString(secret.getBytes());
     }
 
-    public String generateToken(String login) {
-        System.out.println("Secret: " + secret);
-        System.out.println("Expiration: " + expiration);
+    public String generateToken(String login, Long expiration) {
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, login);
+        return createToken(claims, login, expiration);
     }
 
-    private String createToken(Map<String, Object> claims, String subject) {
+    private String createToken(Map<String, Object> claims, String subject, Long expiration) {
         try {
             return Jwts.builder()
                     .setClaims(claims)
