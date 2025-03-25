@@ -21,8 +21,9 @@ public class JwtTokenService {
         return Base64.getEncoder().encodeToString(secret.getBytes());
     }
 
-    public String generateToken(String login, Long expiration) {
+    public String generateToken(String login, Long userId, Long expiration) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", userId);
         return createToken(claims, login, expiration);
     }
 
@@ -47,6 +48,10 @@ public class JwtTokenService {
 //        return (tokenUsername.equals(username) && !isTokenExpired(token));
 //    }
 
+    public String extractUserId(String token) {
+        return extractClaim(token, Claims::getId);
+    }
+
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
@@ -61,7 +66,10 @@ public class JwtTokenService {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parser().setSigningKey(getEncodedSecret()).parseClaimsJws(token).getBody();
+        return Jwts.parser()
+                .setSigningKey(getEncodedSecret())
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     private Boolean isTokenExpired(String token) {

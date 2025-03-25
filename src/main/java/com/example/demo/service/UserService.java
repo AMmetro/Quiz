@@ -136,8 +136,8 @@ public class UserService {
         if (!passwordService.isPasswordValid(loginRequest.getPassword(), user.get().getPassword())) {
             throw new IllegalArgumentException("Invalid password");
         }
-        String accessToken = jwtTokenService.generateToken(user.get().getLogin(), accesExpiration);
-        String refreshToken = jwtTokenService.generateToken(user.get().getLogin(), refreshExpiration);
+        String accessToken = jwtTokenService.generateToken(user.get().getLogin(), user.get().getId(), accesExpiration);
+        String refreshToken = jwtTokenService.generateToken(user.get().getLogin(), user.get().getId(), refreshExpiration);
         LoginResponse response = new LoginResponse(accessToken, refreshToken);
         return response;
     }

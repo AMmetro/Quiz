@@ -36,6 +36,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .antMatchers("/testing/**").permitAll()
             .antMatchers("/auth/login").permitAll()
             .antMatchers("/sa/users").permitAll()
+            .antMatchers("/pair-game-quiz/**").permitAll()
             .antMatchers("/sa/quiz/questions").authenticated() // Требуется аутентификация
             .antMatchers("/sa/quiz/questions/{id}").hasRole("ADMIN") //Только для роли ADMIN
             .anyRequest().authenticated()

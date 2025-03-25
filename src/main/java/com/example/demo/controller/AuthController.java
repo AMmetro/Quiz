@@ -44,12 +44,6 @@ public class AuthController {
         this.jwtTokenService = jwtTokenService;
     }
 
-//    @Autowired
-//    public UserService(PasswordService passwordService, JwtTokenService jwtTokenService) {
-//        this.passwordService = passwordService;
-//        this.jwtTokenService = jwtTokenService;
-//    }
-
     @PostMapping("/registration")
     public ResponseEntity<?> register(@Valid @RequestBody RegistrationRequest request) {
         try {
