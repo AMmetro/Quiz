@@ -10,9 +10,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.logging.Logger;
 
 @Service
 public class JwtTokenService {
+
+    private static final Logger logger = Logger.getLogger(JwtTokenService.class.getName());
 
     @Value("${jwt.secret}")
     private String secret;
@@ -21,9 +24,10 @@ public class JwtTokenService {
         return Base64.getEncoder().encodeToString(secret.getBytes());
     }
 
-    public String generateToken(String login, Long userId, Long expiration) {
+    public String generateToken(String login, String userId, Long expiration) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
+        logger.info("Generating token for user: " + login + ", userId: " + userId);
         return createToken(claims, login, expiration);
     }
 
@@ -37,7 +41,7 @@ public class JwtTokenService {
                     .signWith(SignatureAlgorithm.HS512, getEncodedSecret())
                     .compact();
         } catch (Exception e) {
-            System.out.println("Error creating token: " + e.getMessage());
+            logger.severe("Error creating token: " + e.getMessage());
             e.printStackTrace();
             throw e;
         }
@@ -49,7 +53,16 @@ public class JwtTokenService {
 //    }
 
     public String extractUserId(String token) {
-        return extractClaim(token, Claims::getId);
+        try {
+            Claims claims = extractAllClaims(token);
+            String userId = claims.get("userId", String.class);
+            logger.info("Extracted userId from token: " + userId);
+            return userId;
+        } catch (Exception e) {
+            logger.severe("Error extracting userId from token: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     public String extractUsername(String token) {
@@ -66,10 +79,16 @@ public class JwtTokenService {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parser()
-                .setSigningKey(getEncodedSecret())
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parser()
+                    .setSigningKey(getEncodedSecret())
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            logger.severe("Error parsing token: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     private Boolean isTokenExpired(String token) {

@@ -1,7 +1,6 @@
 package com.example.demo.config;
 
 import com.example.demo.annotation.CurrentUserId;
-import com.example.demo.util.JwtUtils;
 import com.example.demo.util.security.JwtTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
@@ -22,15 +21,12 @@ public class CurrentUserIdArgumentResolver implements HandlerMethodArgumentResol
     private static final Logger logger = Logger.getLogger(CurrentUserIdArgumentResolver.class.getName());
 
     @Autowired
-    private JwtUtils jwtUtils;
-
-    @Autowired
     private JwtTokenService jwtTokenService;
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         return parameter.hasParameterAnnotation(CurrentUserId.class) &&
-                parameter.getParameterType().equals(Long.class);
+                (parameter.getParameterType().equals(Long.class) || parameter.getParameterType().equals(String.class));
     }
 
     @Override
@@ -47,10 +43,13 @@ public class CurrentUserIdArgumentResolver implements HandlerMethodArgumentResol
         try {
             String token = authHeader.substring(7);
             logger.info("Processing token: " + token.substring(0, 20) + "...");
-            Long userId = jwtUtils.getUserIdFromToken(token);
-//              String userId = JwtTokenService.extractUserId(token);
-
+            String userId = jwtTokenService.extractUserId(token);
             logger.info("Successfully extracted userId: " + userId);
+            
+            // Если параметр типа Long, преобразуем String в Long
+            if (parameter.getParameterType().equals(Long.class)) {
+                return Long.parseLong(userId);
+            }
             return userId;
         } catch (Exception e) {
             logger.severe("Error processing token: " + e.getMessage());
