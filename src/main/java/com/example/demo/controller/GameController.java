@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.annotation.CurrentUserId;
 import com.example.demo.dto.ErrorResponse;
+import com.example.demo.entity.GameEntity;
 import com.example.demo.exception.UserAlreadyExistException;
 import com.example.demo.model.GameConnectRequest;
 import com.example.demo.service.GameService;
@@ -20,8 +21,8 @@ public class GameController {
     @PostMapping("/connection")
     public ResponseEntity<?> connectUserToGame(@CurrentUserId String userId) {
         try {
-            gameService.createGamePair(userId);
-            return ResponseEntity.ok("Input data is accepted. Email with confirmation code will be send to passed email address.");
+            GameEntity game =  gameService.createGamePair(userId);
+            return ResponseEntity.ok(game);
 //        } catch (UserNotFoundException e) {
 //            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
