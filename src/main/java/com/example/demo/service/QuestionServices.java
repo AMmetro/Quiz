@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -54,14 +55,16 @@ public class QuestionServices {
     }
 
     public QuestionEntity updateQuestion(String id, PostQuestionRequest question) throws UserNotFoundException {
-        Optional<QuestionEntity> existingQuestion = questionRepo.findById(id);
-        if (existingQuestion.isEmpty()) {
-            throw new UserNotFoundException("User not found with id: " + id);
-        }
-        QuestionEntity updatedQuestion = new QuestionEntity(question.getBody(), question.getCorrectAnswers());
-        QuestionEntity savedQuestion = questionRepo.save(updatedQuestion);
-        return savedQuestion;
+        QuestionEntity existingQuestion = questionRepo.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Question with id " + id + " not found"));
+
+        existingQuestion.setBody(question.getBody());
+        existingQuestion.setCorrectAnswers(question.getCorrectAnswers());
+        existingQuestion.setUpdatedAt(LocalDateTime.now());
+
+        return questionRepo.save(existingQuestion);
     }
+
 
     public void publishQuestion(String id, Boolean publishedStatus) throws UserNotFoundException {
         Optional<QuestionEntity> existingQuestion = questionRepo.findById(id);
