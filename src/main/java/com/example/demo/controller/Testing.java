@@ -2,9 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.UserEntity;
 import com.example.demo.exception.UserAlreadyExistException;
-import com.example.demo.repository.QuestionRepo;
-import com.example.demo.repository.TodoRepo;
-import com.example.demo.repository.UserRepo;
+import com.example.demo.repository.*;
 import com.example.demo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,14 +19,22 @@ public class Testing {
     private TodoRepo todoRepo;
 
     @Autowired
+    private PlayerRepository playerRepository;
+
+    @Autowired
     private QuestionRepo questionRepo;
+
+    @Autowired
+    private GameRepository gameRepository;
 
     @DeleteMapping(value = "all-data")
     public ResponseEntity deleteAll() {
         try {
             todoRepo.deleteAll();
             userRepo.deleteAll();
+            playerRepository.deleteAll();
             questionRepo.deleteAll();
+            gameRepository.deleteAll();
 
             return ResponseEntity.noContent().build(); // 204
         } catch (Exception e) {

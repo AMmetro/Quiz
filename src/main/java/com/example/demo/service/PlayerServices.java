@@ -15,11 +15,11 @@ public class PlayerServices {
     private PlayerRepository playerRepository;
 
 
-    public String createPlayer(String userId, PlayerStatus status) {
+    public PlayerEntity createPlayer(String userId, PlayerStatus status) {
         PlayerStatus playerStatus = (status != null) ? status : PlayerStatus.DRAWS;
         PlayerEntity newPlayer = new PlayerEntity(userId, new ArrayList<>(), playerStatus);
         playerRepository.save(newPlayer);
-        return newPlayer.getId();
+        return newPlayer;
     }
 
 }

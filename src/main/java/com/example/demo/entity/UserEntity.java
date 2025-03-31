@@ -54,9 +54,6 @@ public class UserEntity {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @Column(name = "in_game")
-    private boolean inGame;
-
     /*
      * Каскадное удаление задач если удаляется пользователь
      */
@@ -170,12 +167,5 @@ public class UserEntity {
         this.createdAt = createdAt;
     }
 
-    public boolean getInGame() {
-        return inGame;
-    }
-
-    public void setInGame(boolean inGame) {
-        this.inGame = inGame;
-    }
 }
 

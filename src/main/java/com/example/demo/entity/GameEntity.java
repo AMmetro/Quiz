@@ -56,7 +56,16 @@ public class GameEntity {
     @Column(name = "pairCreatedAt")
     private LocalDateTime pairCreatedAt;
 
-    public GameEntity(String player_1, String user_1, List<String> questions) {
+    public GameEntity(String player_1, String user_1, List<String> questions, String player_2, String user_2 ) {
+        this.player_1 = player_1;
+        this.user_1 = user_1;
+        this.player_2 = player_2;
+        this.user_2 = user_2;
+        this.status = GameStatus.ACTIVE;
+        this.questions = questions;
+    }
+
+    public GameEntity(String player_1, String user_1, List<String> questions ) {
         this.player_1 = player_1;
         this.user_1 = user_1;
         this.player_2 = null;

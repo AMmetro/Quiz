@@ -85,7 +85,7 @@ public class AuthController {
             response.addCookie(refreshTokenCookie);
             return ResponseEntity.ok(result.getAccessToken()).getBody();
         } catch (UserNotFoundException e) {
-            return ResponseEntity.badRequest().body("account for login not found");
+            return ResponseEntity.badRequest().body("account for login " + loginRequest.getLoginOrEmail() + " not found");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e);
         }
