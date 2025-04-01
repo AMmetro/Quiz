@@ -134,13 +134,9 @@ public class UserService {
     }
 
     public LoginResponse login(LoginRequest loginRequest) throws UserNotFoundException {
-        System.out.printf("--------------------------");
-        System.out.printf(loginRequest.getLoginOrEmail());
        // запрос вызывает ошибку NonUniqueResultException если находит более одной строки
         Optional<UserEntity> user = userRepo.findByEmailOrLogin(loginRequest.getLoginOrEmail());
-        System.out.printf("///////////////////////////////////");
         if (!user.isPresent()) {
-            System.out.printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             throw new UserNotFoundException("User not found: " + loginRequest.getLoginOrEmail());
         }
         if (!passwordService.isPasswordValid(loginRequest.getPassword(), user.get().getPassword())) {
