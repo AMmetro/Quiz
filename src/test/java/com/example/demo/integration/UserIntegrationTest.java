@@ -3,6 +3,7 @@ package com.example.demo.integration;
 import com.example.demo.dto.UserRequest;
 import com.example.demo.dto.login.LoginRequest;
 import com.example.demo.dto.question.PostQuestionRequest;
+import com.example.demo.dto.question.PublishQuestionRequest;
 import com.example.demo.entity.UserEntity;
 import com.example.demo.repository.UserRepo;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -150,5 +151,50 @@ public class UserIntegrationTest {
                 .andExpect(jsonPath("$.published").value(false))
                 .andExpect(jsonPath("$.createdAt").exists())
                 .andReturn();
+    }
+
+    @Test
+    public void testPublishQuestion() throws Exception {
+        // Создаем вопрос
+        PostQuestionRequest questionRequest = new PostQuestionRequest();
+        questionRequest.setBody("What is the capital of France?");
+        questionRequest.setCorrectAnswers(List.of("Paris"));
+
+        MvcResult createResult = mockMvc.perform(post("/sa/quiz/questions")
+                .header("Authorization", "Basic " + java.util.Base64.getEncoder().encodeToString("user:qwerty".getBytes()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(questionRequest)))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        // Получаем id созданного вопроса
+        String questionId = objectMapper.readTree(createResult.getResponse().getContentAsString())
+                .get("id").asText();
+
+        // Тест 1: Публикуем вопрос (published = true)
+        PublishQuestionRequest publishRequest = new PublishQuestionRequest();
+        publishRequest.setPublished(true);
+
+        mockMvc.perform(put("/sa/quiz/questions/" + questionId + "/publish")
+                .header("Authorization", "Basic " + java.util.Base64.getEncoder().encodeToString("user:qwerty".getBytes()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(publishRequest)))
+                .andExpect(status().isNoContent());
+
+        // Тест 2: Снимаем с публикации (published = false)
+        publishRequest.setPublished(false);
+
+        mockMvc.perform(put("/sa/quiz/questions/" + questionId + "/publish")
+                .header("Authorization", "Basic " + java.util.Base64.getEncoder().encodeToString("user:qwerty".getBytes()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(publishRequest)))
+                .andExpect(status().isNoContent());
+
+        // Тест 3: Отправляем некорректное значение в теле запроса
+        mockMvc.perform(put("/sa/quiz/questions/" + questionId + "/publish")
+                .header("Authorization", "Basic " + java.util.Base64.getEncoder().encodeToString("user:qwerty".getBytes()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"published\": \"invalid\"}"))
+                .andExpect(status().isBadRequest());
     }
 } 
