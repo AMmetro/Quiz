@@ -14,7 +14,7 @@ import java.util.UUID;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class GameModel {
-    private UUID id;
+    private String id;
     private PlayerProgress firstPlayerProgress;
     private PlayerProgress secondPlayerProgress;
     private List<ModelQuestion> questions;
@@ -23,7 +23,20 @@ public class GameModel {
     private LocalDateTime startGameDate;
     private LocalDateTime finishGameDate;
 
-    public GameModel(UUID id, PlayerProgress firstPlayerProgress, PlayerProgress secondPlayerProgress,
+    public GameModel(String id, PlayerProgress firstPlayerProgress,
+                     List<ModelQuestion> questions, GameStatus status, LocalDateTime pairCreatedDate,
+                     LocalDateTime startGameDate, LocalDateTime finishGameDate) {
+        this.id = id;
+        this.firstPlayerProgress = firstPlayerProgress;
+//        this.secondPlayerProgress = secondPlayerProgress;
+        this.questions = questions;
+        this.status = status;
+        this.pairCreatedDate = pairCreatedDate;
+        this.startGameDate = startGameDate;
+        this.finishGameDate = finishGameDate;
+    }
+
+    public GameModel(String id, PlayerProgress firstPlayerProgress, PlayerProgress secondPlayerProgress,
                      List<ModelQuestion> questions, GameStatus status, LocalDateTime pairCreatedDate,
                      LocalDateTime startGameDate, LocalDateTime finishGameDate) {
         this.id = id;

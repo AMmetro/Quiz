@@ -121,7 +121,7 @@ public class GameService {
         );
 
         GameModel gameTest1 = new GameModel(
-                UUID.randomUUID(),
+                "id",
                 firstPlayerProgress1,
                 secondPlayerProgress1,
                 questionsTest1,
@@ -195,7 +195,7 @@ public class GameService {
                                                                         System.out.printf(playerOneId);
                                                                         System.out.printf(" ======================");
 
-            GameEntity newGame = new GameEntity(playerOneId, userId, new ArrayList<>());
+            GameEntity newGame = new GameEntity(playerOneId, userId, new ArrayList<>(), "111", "222");
 //            System.out.printf("Active game with user already exists: %s%n", userActiveGame);
             gameRepository.save(newGame);
             // должен вернуть большой обект
@@ -220,16 +220,14 @@ public class GameService {
             );
 
             GameModel gameTest = new GameModel(
-                    UUID.randomUUID(),
+                    newGame.getId(),
                     firstPlayerProgress,
                     secondPlayerProgress,
                     questionsTest,
                     GameStatus.PENDING,
                     LocalDateTime.now(),
-//                    LocalDateTime.now(),
                     null,
-//                    LocalDateTime.now()
-                    null
+                    LocalDateTime.now()
             );
 
 //-----------------------------------------------------------------------------------------------------------------------

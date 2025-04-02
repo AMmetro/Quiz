@@ -65,15 +65,15 @@ public class GameEntity {
         this.questions = questions;
     }
 
-    public GameEntity(String player_1, String user_1, List<String> questions ) {
-        this.player_1 = player_1;
-        this.user_1 = user_1;
-        this.player_2 = null;
-        this.user_2 = null;
-        this.status = GameStatus.PENDING;
-        this.questions = questions;
-        pairCreatedAt = LocalDateTime.now(ZoneOffset.UTC);
-    }
+//    public GameEntity(String player_1, String user_1, List<String> questions ) {
+//        this.player_1 = player_1;
+//        this.user_1 = user_1;
+//        this.player_2 = "null";
+//        this.user_2 = "null";
+//        this.status = GameStatus.PENDING;
+//        this.questions = questions;
+//        pairCreatedAt = LocalDateTime.now(ZoneOffset.UTC);
+//    }
 
 
 }
