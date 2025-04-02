@@ -42,6 +42,9 @@ public class GameService {
     private PlayerServices playerServices;
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     private UserRepo userRepo;
 
     /* Можно так - прямое внедрение зависимостей - устарело - нетестируется
@@ -60,6 +63,27 @@ public class GameService {
         String user1Id = game.get().getUser_1();
         String user2Id = game.get().getUser_2();
 
+        if ( user2Id != null && !user1Id.equals(userId) && !user2Id.equals(userId)) {
+            throw new ElseGameExeption("user with id " + userId + " tries to get pair in which not participant");
+        } else
+
+        if ( user2Id == null && !user1Id.equals(userId) ) {
+            throw new ElseGameExeption("user with id " + userId + " tries to get pair in which not participant");
+        }
+        else {
+            return game.get();}
+    }
+
+
+    public GameEntity getCurrentUnfinishedUserGame(String userId ) throws GameNotFoundExeption, ElseGameExeption {
+        Optional<GameEntity> game = gameRepository.findByIdAndStatus(userId, GameStatus.PENDING);
+
+        if (game.isEmpty()){
+            throw new GameNotFoundExeption ("game with user id " + userId + " not found");
+        }
+
+        String user1Id = game.get().getUser_1();
+        String user2Id = game.get().getUser_2();
 
         if ( user2Id != null && !user1Id.equals(userId) && !user2Id.equals(userId)) {
             throw new ElseGameExeption("user with id " + userId + " tries to get pair in which not participant");
@@ -69,7 +93,6 @@ public class GameService {
             throw new ElseGameExeption("user with id " + userId + " tries to get pair in which not participant");
         }
         else {
-            System.out.printf("cccccccccccccccccc");
             return game.get();}
     }
 
@@ -100,141 +123,104 @@ public class GameService {
             throw new ElseGameExeption("Pending game with user already exist");
         }
 
-
-        //-----------------------------------------------------------------------------------------------------------------------------
-
-        GameModel.PlayerProgress firstPlayerProgress1 = new GameModel.PlayerProgress(
-                List.of(new GameModel.Answer("q1", "Correct", LocalDateTime.now())),
-                new GameModel.Player("player1", "login1"),
-                10
-        );
-
-        GameModel.PlayerProgress secondPlayerProgress1 = new GameModel.PlayerProgress(
-                List.of(new GameModel.Answer("q2", "Correct", LocalDateTime.now())),
-                new GameModel.Player("player2", "login2"),
-                15
-        );
-
-        List<GameModel.ModelQuestion> questionsTest1 = List.of(
-                new GameModel.ModelQuestion("q1", "What is Java?"),
-                new GameModel.ModelQuestion("q2", "What is Spring?")
-        );
-
-        GameModel gameTest1 = new GameModel(
-                "id",
-                firstPlayerProgress1,
-                secondPlayerProgress1,
-                questionsTest1,
-//                "PendingSecondPlayer",
-                GameStatus.PENDING,
-                LocalDateTime.now(),
-                LocalDateTime.now(),
-                LocalDateTime.now()
-        );
-
-//-----------------------------------------------------------------------------------------------------------------------
-
-        GModal gameTest2 = GModal.toModalMapper("334");
-
-// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // 3 - checking the existing pending game with the other user
-        Optional<GameEntity> otherPendingGame = gameRepository.findByNotIdAndStatus(userId, GameStatus.PENDING);
+        Optional<GameEntity> dbPendingGame = gameRepository.findByNotIdAndStatus(userId, GameStatus.PENDING);
 
-                                                        System.out.printf("333333333333333333 ");
-                                                        System.out.printf(otherPendingGame.toString());
-                                                        System.out.printf(" ======================");
 
-        if (otherPendingGame.isPresent()) {
+        if (dbPendingGame.isPresent()) {
             // 3a - join user to the first game in array
-            List<QuestionEntity> questions = questionRepo.getFiveRandomQuestion();
+            GameEntity pendingGame = dbPendingGame.get();
+            String playerOneId = pendingGame.getUser_1();
+            UserEntity userOneEntity = userRepo.findById(Long.parseLong(userId)).get();
+            String playerOneLogin = userOneEntity.getLogin();
 
-                                                                System.out.printf("4444444444444444 ");
-                                                                System.out.printf(otherPendingGame.toString());
-                                                                System.out.printf(" ======================");
+            playerServices.changePlayerStatus(playerOneId, PlayerStatus.ACTIVE);
+
+            List<QuestionEntity> questions = questionRepo.getFiveRandomQuestion();
 
             List<String> questionIds = questions.stream()
                     .map(QuestionEntity::getId)
                     .collect(Collectors.toList());
             PlayerEntity playerTwo = playerServices.createPlayer(userId, PlayerStatus.ACTIVE);
             String playerTwoId = playerTwo.getId();
-//            String playerTwoLogin = playerTwo.
-
-                                                    System.out.printf("77777777777777777 ");
-                                                    System.out.printf(questionIds.toString());
-                                                    System.out.printf(" ======================");
-
-           GameEntity pendingGame = otherPendingGame.get();
 
             pendingGame.setUser_2(userId);
             pendingGame.setPlayer_2(playerTwoId);
             pendingGame.setStatus(GameStatus.ACTIVE);
             pendingGame.setQuestions(questionIds);
+            pendingGame.setPairCreatedAt(LocalDateTime.now());
+            gameRepository.save(pendingGame);
 
-
-            System.out.printf("88888888888888888 ");
-            System.out.printf(pendingGame.toString());
-
-               gameRepository.save(pendingGame);
-
-            System.out.printf("999999999999999999 ");
-            System.out.printf(pendingGame.toString());
-
-//            return  pendingGame;
-            // должен вернуть большой обект
-            return gameTest1;
-
-        } else {
-           // 3b - create new Game with current user in pending status
-            PlayerEntity playerOne = playerServices.createPlayer(userId, PlayerStatus.ACTIVE);
-            String playerOneId = playerOne.getId();
-
-
-
-
-                                                                        System.out.printf("55555555555555555555 ");
-                                                                        System.out.printf(playerOneId);
-                                                                        System.out.printf(" ======================");
-
-            GameEntity newGame = new GameEntity(playerOneId, userId, new ArrayList<>(), "111", "222");
-//            System.out.printf("Active game with user already exists: %s%n", userActiveGame);
-            gameRepository.save(newGame);
-            // должен вернуть большой обект
 
             //-----------------------------------------------------------------------------------------------------------------------------
 
-            GameModel.PlayerProgress firstPlayerProgress = new GameModel.PlayerProgress(
-                    List.of(new GameModel.Answer("", "", LocalDateTime.now())),
-                    new GameModel.Player(playerOneId, requestUserLogin),
-                    0
-            );
+//            GameModel.PlayerProgress firstPlayerProgress1 = new GameModel.PlayerProgress(
+//                    List.of(new GameModel.Answer("q1", "Correct", LocalDateTime.now())),
+//                    new GameModel.Player(playerOneId, playerOneLogin),
+//                    0
+//            );
 
-            GameModel.PlayerProgress secondPlayerProgress = new GameModel.PlayerProgress(
-                    List.of(new GameModel.Answer("", "", LocalDateTime.now())),
-                    new GameModel.Player("", ""),
-                    0
-            );
+//            GameModel.PlayerProgress secondPlayerProgress1 = new GameModel.PlayerProgress(
+//                    List.of(new GameModel.Answer("q2", "Correct", LocalDateTime.now())),
+//                    new GameModel.Player("player2", "login2"),
+//                    15
+//            );
 
-            List<GameModel.ModelQuestion> questionsTest = List.of(
+//            List<GameModel.ModelQuestion> questionsTest1 = List.of(
 //                    new GameModel.ModelQuestion("q1", "What is Java?"),
 //                    new GameModel.ModelQuestion("q2", "What is Spring?")
-            );
+//            );
 
-            GameModel gameTest = new GameModel(
-                    newGame.getId(),
-                    firstPlayerProgress,
-                    secondPlayerProgress,
-                    questionsTest,
-                    GameStatus.PENDING,
+            GameModel activeGameModel = new GameModel(
+                    pendingGame.getId(),
+                    null, //firstPlayerProgress1,
+                    null, //secondPlayerProgress1,
+                    questions,
+                    GameStatus.ACTIVE,
                     LocalDateTime.now(),
-                    null,
-                    LocalDateTime.now()
+                    LocalDateTime.now(),
+                    null //LocalDateTime.now()
             );
 
 //-----------------------------------------------------------------------------------------------------------------------
 
+            return activeGameModel;
 
+        } else {
+           // 3b - create new Game with current user in pending status
+            PlayerEntity playerOne = playerServices.createPlayer(userId, PlayerStatus.DRAWS);
+            String playerOneId = playerOne.getId();
+            GameEntity newPendingGame = new GameEntity(playerOneId, userId, new ArrayList<>(), playerOneId, userId, GameStatus.PENDING );
+            gameRepository.save(newPendingGame);
 
-            return gameTest;
+            //-----------------------------------------------------------------------------------------------------------------------------
+
+//            GameModel.PlayerProgress firstPlayerProgress = new GameModel.PlayerProgress(
+//                    List.of(new GameModel.Answer("", "", LocalDateTime.now())),
+//                    new GameModel.Player(playerOneId, requestUserLogin),
+//                    0
+//            );
+
+//            GameModel.PlayerProgress secondPlayerProgress = new GameModel.PlayerProgress(
+//                    List.of(new GameModel.Answer("", "", LocalDateTime.now())),
+//                    new GameModel.Player("", ""),
+//                    0
+//            );
+
+//            List<GameModel.ModelQuestion> questionsTest = List.of();
+
+            GameModel pendingGameModel = new GameModel(
+                    newPendingGame.getId(),
+                    null, //firstPlayerProgress,
+                    null, //secondPlayerProgress,
+                    null, //questionsTest,
+                    GameStatus.PENDING,
+                    LocalDateTime.now(),
+                    null,
+                    null //LocalDateTime.now()
+            );
+//-----------------------------------------------------------------------------------------------------------------------
+            return pendingGameModel;
         }
     }
 

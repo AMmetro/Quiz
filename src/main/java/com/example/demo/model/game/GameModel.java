@@ -1,6 +1,7 @@
 package com.example.demo.model.game;
 
 import com.example.demo.constant.GameStatus;
+import com.example.demo.entity.QuestionEntity;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -17,27 +18,27 @@ public class GameModel {
     private String id;
     private PlayerProgress firstPlayerProgress;
     private PlayerProgress secondPlayerProgress;
-    private List<ModelQuestion> questions;
+    private List<QuestionEntity> questions;
     private GameStatus status;
     private LocalDateTime pairCreatedDate;
     private LocalDateTime startGameDate;
     private LocalDateTime finishGameDate;
 
-    public GameModel(String id, PlayerProgress firstPlayerProgress,
-                     List<ModelQuestion> questions, GameStatus status, LocalDateTime pairCreatedDate,
-                     LocalDateTime startGameDate, LocalDateTime finishGameDate) {
-        this.id = id;
-        this.firstPlayerProgress = firstPlayerProgress;
-//        this.secondPlayerProgress = secondPlayerProgress;
-        this.questions = questions;
-        this.status = status;
-        this.pairCreatedDate = pairCreatedDate;
-        this.startGameDate = startGameDate;
-        this.finishGameDate = finishGameDate;
-    }
+//    public GameModel(String id, PlayerProgress firstPlayerProgress,
+//                     List<QuestionEntity> questions, GameStatus status, LocalDateTime pairCreatedDate,
+//                     LocalDateTime startGameDate, LocalDateTime finishGameDate) {
+//        this.id = id;
+//        this.firstPlayerProgress = firstPlayerProgress;
+////        this.secondPlayerProgress = secondPlayerProgress;
+//        this.questions = questions;
+//        this.status = status;
+//        this.pairCreatedDate = pairCreatedDate;
+//        this.startGameDate = startGameDate;
+//        this.finishGameDate = finishGameDate;
+//    }
 
     public GameModel(String id, PlayerProgress firstPlayerProgress, PlayerProgress secondPlayerProgress,
-                     List<ModelQuestion> questions, GameStatus status, LocalDateTime pairCreatedDate,
+                     List<QuestionEntity> questions, GameStatus status, LocalDateTime pairCreatedDate,
                      LocalDateTime startGameDate, LocalDateTime finishGameDate) {
         this.id = id;
         this.firstPlayerProgress = firstPlayerProgress;
@@ -76,13 +77,13 @@ public class GameModel {
         private String login;
     }
 
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class ModelQuestion {
-        private String id;
-        private String body;
-    }
+//    @Data
+//    @NoArgsConstructor
+//    @AllArgsConstructor
+//    public static class ModelQuestion {
+//        private String id;
+//        private String body;
+//    }
 
 }
 

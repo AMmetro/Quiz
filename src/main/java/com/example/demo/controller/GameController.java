@@ -35,6 +35,20 @@ public class GameController {
     }
 
 
+    @GetMapping("/my-current")
+    public ResponseEntity<?> getCurrentUnfinishedUserGame (@CurrentUserId String userId) {
+        try {
+            GameEntity game =  gameService.getCurrentUnfinishedUserGame(userId);
+            return ResponseEntity.ok(game);
+        }  catch (GameNotFoundExeption e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (ElseGameExeption e) {
+            return ResponseEntity.status(403).body(e.getMessage());
+        }catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @GetMapping("{gameId}")
     public ResponseEntity<?> getGameById (@PathVariable String gameId, @CurrentUserId String userId) {
         try {

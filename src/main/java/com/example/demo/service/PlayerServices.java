@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 @Service
 public class PlayerServices {
@@ -20,6 +21,20 @@ public class PlayerServices {
         PlayerEntity newPlayer = new PlayerEntity(userId, new ArrayList<>(), playerStatus);
         playerRepository.save(newPlayer);
         return newPlayer;
+    }
+
+    public void changePlayerStatus(String userId, PlayerStatus status){
+        Optional<PlayerEntity> player = playerRepository.findByUserId(userId);
+        if (player.isPresent()) {
+            PlayerEntity playerToUpdate = player.get();
+            playerToUpdate.setStatus(status);
+            playerRepository.save(playerToUpdate);
+        }
+    }
+
+    public PlayerEntity findPlayerByUserId(String userId){
+        Optional<PlayerEntity> player = playerRepository.findByUserId(userId);
+        return player.get();
     }
 
 }
