@@ -38,6 +38,9 @@ public class PlayerEntity {
     @Column(name = "game_id")
     private String gameId;
 
+    @Column(name = "score")
+    private Integer score = 0;
+
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
     private PlayerStatus status;
@@ -129,5 +132,13 @@ public class PlayerEntity {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Integer getScore() {
+        return score;
+    }
+
+    public void setScore(Integer score) {
+        this.score = score;
     }
 }

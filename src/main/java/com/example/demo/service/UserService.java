@@ -133,16 +133,23 @@ public class UserService {
         return id;
     }
 
-    public LoginResponse login(LoginRequest loginRequest) throws UserNotFoundException {
+    public LoginResponse login(LoginRequest loginRequest) throws UserNotFoundException, IllegalArgumentException {
        // запрос вызывает ошибку NonUniqueResultException если находит более одной строки
+
         Optional<UserEntity> user = userRepo.findByEmailOrLogin(loginRequest.getLoginOrEmail());
+
+        System.out.printf(loginRequest.getLoginOrEmail());
+
         if (!user.isPresent()) {
             throw new UserNotFoundException("User not found: " + loginRequest.getLoginOrEmail());
         }
+
         if (!passwordService.isPasswordValid(loginRequest.getPassword(), user.get().getPassword())) {
             throw new IllegalArgumentException("Invalid password");
         }
+
         String accessToken = jwtTokenService.generateToken(user.get().getLogin(), String.valueOf(user.get().getId()), accesExpiration);
+
         String refreshToken = jwtTokenService.generateToken(user.get().getLogin(), String.valueOf(user.get().getId()), refreshExpiration);
         LoginResponse response = new LoginResponse(accessToken, refreshToken);
         return response;

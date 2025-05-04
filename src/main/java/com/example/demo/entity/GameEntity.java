@@ -56,25 +56,21 @@ public class GameEntity {
     @Column(name = "pairCreatedAt")
     private LocalDateTime pairCreatedAt;
 
-    public GameEntity(String player_1, String user_1, List<String> questions, String player_2, String user_2, GameStatus status) {
+    @Column(name = "startGameDate")
+    private LocalDateTime startGameDate;
+
+    @Column(name = "finishGameDate")
+    private LocalDateTime finishGameDate;
+
+    public GameEntity(String player_1, String user_1, List<String> questions, String player_2, String user_2, GameStatus status, LocalDateTime pairCreatedAt ) {
         this.player_1 = player_1;
         this.user_1 = user_1;
         this.player_2 = player_2;
         this.user_2 = user_2;
         this.status = status;
         this.questions = questions;
+        this.pairCreatedAt = pairCreatedAt;
     }
-
-//    public GameEntity(String player_1, String user_1, List<String> questions ) {
-//        this.player_1 = player_1;
-//        this.user_1 = user_1;
-//        this.player_2 = "null";
-//        this.user_2 = "null";
-//        this.status = GameStatus.PENDING;
-//        this.questions = questions;
-//        pairCreatedAt = LocalDateTime.now(ZoneOffset.UTC);
-//    }
-
 
 }
 

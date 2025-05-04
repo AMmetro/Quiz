@@ -86,7 +86,10 @@ public class AuthController {
             return ResponseEntity.ok(result.getAccessToken()).getBody();
         } catch (UserNotFoundException e) {
             return ResponseEntity.badRequest().body("account for login " + loginRequest.getLoginOrEmail() + " not found");
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
+//            return ResponseEntity.badRequest().body("wrong password " + e);
+            return ResponseEntity.status(401).body(e.getMessage());
+        }catch (Exception e) {
             return ResponseEntity.badRequest().body(e);
         }
 

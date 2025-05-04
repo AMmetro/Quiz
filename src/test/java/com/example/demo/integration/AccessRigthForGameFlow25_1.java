@@ -103,17 +103,21 @@ public class AccessRigthForGameFlow25_1 {
                         .header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.firstPlayerProgress").exists())
-                .andExpect(jsonPath("$.firstPlayerProgress.answers").isArray())
-                .andExpect(jsonPath("$.firstPlayerProgress.player.id").exists())
-                .andExpect(jsonPath("$.firstPlayerProgress.player.login").value("user1"))
-                .andExpect(jsonPath("$.firstPlayerProgress.score").value(0))
-                .andExpect(jsonPath("$.questions").isArray())
+                .andExpect(jsonPath("$.firstPlayerProgress").doesNotExist())
+                .andExpect(jsonPath("$.firstPlayerProgress.answers").doesNotExist())
+                .andExpect(jsonPath("$.firstPlayerProgress.player.id").doesNotExist())
                 .andExpect(jsonPath("$.status").value("PENDING"))
                 .andExpect(jsonPath("$.pairCreatedDate").exists())
                 .andReturn();
 
-//         Create user with wrong token
+//        Try to get active user game but it not exist
+        mockMvc.perform(get("/pair-game-quiz/pairs/my-current/")
+                        .header("Authorization", "Bearer " + accessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isNotFound());
+
+//        Create user with wrong token
         mockMvc.perform(post("/pair-game-quiz/pairs/connection")
                         .header("Authorization", "Bearer invalid_token"))
                 .andExpect(status().isUnauthorized());

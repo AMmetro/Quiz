@@ -18,7 +18,7 @@ public class GameModel {
     private String id;
     private PlayerProgress firstPlayerProgress;
     private PlayerProgress secondPlayerProgress;
-    private List<QuestionEntity> questions;
+    private List<String> questions;
     private GameStatus status;
     private LocalDateTime pairCreatedDate;
     private LocalDateTime startGameDate;
@@ -38,7 +38,7 @@ public class GameModel {
 //    }
 
     public GameModel(String id, PlayerProgress firstPlayerProgress, PlayerProgress secondPlayerProgress,
-                     List<QuestionEntity> questions, GameStatus status, LocalDateTime pairCreatedDate,
+                     List<String> questions, GameStatus status, LocalDateTime pairCreatedDate,
                      LocalDateTime startGameDate, LocalDateTime finishGameDate) {
         this.id = id;
         this.firstPlayerProgress = firstPlayerProgress;

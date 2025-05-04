@@ -5,8 +5,7 @@ import com.example.demo.dto.login.LoginRequest;
 import com.example.demo.dto.question.PostQuestionRequest;
 import com.example.demo.dto.question.PublishQuestionRequest;
 import com.example.demo.entity.UserEntity;
-import com.example.demo.repository.GameRepository;
-import com.example.demo.repository.UserRepo;
+import com.example.demo.repository.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,16 +40,28 @@ public class AccessRigthForGameFlow25_2 {
     private UserRepo userRepo;
 
     @Autowired
+    private PlayerRepository playerRepository;
+
+    @Autowired
     private GameRepository gameRepository;
+
+    @Autowired
+    private QuestionRepo questionRepo;
+
+    @Autowired
+    private AnswerRepo answerRepo;
 
     @BeforeEach
     public void setUp() {
         userRepo.deleteAll();
         gameRepository.deleteAll();
+        playerRepository.deleteAll();
+        questionRepo.deleteAll();
+        answerRepo.deleteAll();
     }
 
     @Test
-    public void testCreateGame() throws Exception {
+    public void testCreateGameWith2User() throws Exception {
 
 //        Create user1:
         UserRequest userRequest = new UserRequest();
@@ -139,37 +150,79 @@ public class AccessRigthForGameFlow25_2 {
                 .get("accessToken").asText();
 
 
-//        Create game for user2 in active status
+//        Join user2 to game, switch game to active status
         MvcResult gameActiveUser2 = mockMvc.perform(post("/pair-game-quiz/pairs/connection")
                         .header("Authorization", "Bearer " + accessToken2))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").exists())
-//                .andExpect(jsonPath("$.firstPlayerProgress").exists())
-//                .andExpect(jsonPath("$.firstPlayerProgress.answers").isArray())
-//                .andExpect(jsonPath("$.firstPlayerProgress.player.id").exists())
-//                .andExpect(jsonPath("$.firstPlayerProgress.player.login").value("user2"))
-//                .andExpect(jsonPath("$.firstPlayerProgress.score").value(0))
-//                .andExpect(jsonPath("$.secondPlayerProgress").exists())
-//                .andExpect(jsonPath("$.secondPlayerProgress.answers").isArray())
-//                .andExpect(jsonPath("$.secondPlayerProgress.player").value(""))
-//                .andExpect(jsonPath("$.secondPlayerProgress.player.login").value("login2"))
-//                .andExpect(jsonPath("$.secondPlayerProgress.score").value(0))
-//                .andExpect(jsonPath("$.questions").isArray())
                 .andExpect(jsonPath("$.status").value("ACTIVE"))
                 .andExpect(jsonPath("$.pairCreatedDate").exists())
                 .andExpect(jsonPath("$.startGameDate").exists())
                 .andExpect(jsonPath("$.finishGameDate").doesNotExist())
                 .andReturn();
 
+//        Try to get existing active user game by user1
+        mockMvc.perform(get("/pair-game-quiz/pairs/my-current/")
+                        .header("Authorization", "Bearer " + accessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.firstPlayerProgress").exists())
+                .andExpect(jsonPath("$.firstPlayerProgress.answers").isArray())
+                .andExpect(jsonPath("$.firstPlayerProgress.player.id").exists())
+                .andExpect(jsonPath("$.firstPlayerProgress.player.login").value("user1"))
+                .andExpect(jsonPath("$.firstPlayerProgress.score").value(0))
+                .andExpect(jsonPath("$.secondPlayerProgress").exists())
+                .andExpect(jsonPath("$.secondPlayerProgress.answers").isArray())
+                .andExpect(jsonPath("$.secondPlayerProgress.player.id").exists())
+                .andExpect(jsonPath("$.secondPlayerProgress.player.login").value("user2"))
+                .andExpect(jsonPath("$.secondPlayerProgress.score").value(0))
+                .andExpect(jsonPath("$.questions").isArray())
+                .andExpect(jsonPath("$.status").value("ACTIVE"))
+                .andExpect(jsonPath("$.pairCreatedDate").exists())
+                .andExpect(jsonPath("$.startGameDate").exists())
+                .andExpect(jsonPath("$.finishGameDate").doesNotExist())
+                .andReturn();
 
-////        Get id of game2
-//        String gameId = objectMapper.readTree(gameActiveUser2.getResponse().getContentAsString())
-//                .get("id").asText();
+//        Try to get existing active user game by user2
+mockMvc.perform(get("/pair-game-quiz/pairs/my-current/")
+                .header("Authorization", "Bearer " + accessToken2)
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").exists())
+        .andExpect(jsonPath("$.firstPlayerProgress").exists())
+        .andExpect(jsonPath("$.firstPlayerProgress.answers").isArray())
+        .andExpect(jsonPath("$.firstPlayerProgress.player.id").exists())
+        .andExpect(jsonPath("$.firstPlayerProgress.player.login").value("user1"))
+        .andExpect(jsonPath("$.firstPlayerProgress.score").value(0))
+        .andExpect(jsonPath("$.secondPlayerProgress").exists())
+        .andExpect(jsonPath("$.secondPlayerProgress.answers").isArray())
+        .andExpect(jsonPath("$.secondPlayerProgress.player.id").exists())
+        .andExpect(jsonPath("$.secondPlayerProgress.player.login").value("user2"))
+        .andExpect(jsonPath("$.secondPlayerProgress.score").value(0))
+        .andExpect(jsonPath("$.questions").isArray())
+        .andExpect(jsonPath("$.status").value("ACTIVE"))
+        .andExpect(jsonPath("$.pairCreatedDate").exists())
+        .andExpect(jsonPath("$.startGameDate").exists())
+        .andExpect(jsonPath("$.finishGameDate").doesNotExist())
+        .andReturn();
 
-////          Try to get game by user with id that not in game
-//        mockMvc.perform(get("/pair-game-quiz/pairs/" + gameId)
-//                        .header("Authorization", "Bearer " + accessToken2))
-//                .andExpect(status().isForbidden());
+//        Get id of game2
+        String gameId = objectMapper.readTree(gameActiveUser2.getResponse().getContentAsString())
+                .get("id").asText();
+
+//        Try to get game by user with id that not in game
+        mockMvc.perform(get("/pair-game-quiz/pairs/" + gameId)
+                        .header("Authorization", "Bearer " + accessToken2))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists());
+
+        mockMvc.perform(get("/pair-game-quiz/pairs/" + gameId)
+                        .header("Authorization", "Bearer " + accessToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists());
 
     }
 

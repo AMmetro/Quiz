@@ -2,17 +2,22 @@ package com.example.demo.controller;
 
 import com.example.demo.annotation.CurrentUserId;
 import com.example.demo.dto.ErrorResponse;
+import com.example.demo.dto.question.AnswerForQuestionRequest;
+import com.example.demo.dto.question.PostQuestionRequest;
 import com.example.demo.entity.GameEntity;
 import com.example.demo.exception.ElseGameExeption;
 import com.example.demo.exception.GameNotFoundExeption;
 import com.example.demo.exception.UserAlreadyExistException;
-import com.example.demo.model.GModal;
+//import com.example.demo.model.GModal;
+import com.example.demo.model.AnswerModal;
 import com.example.demo.model.GameConnectRequest;
 import com.example.demo.model.game.GameModel;
 import com.example.demo.service.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -38,13 +43,23 @@ public class GameController {
     @GetMapping("/my-current")
     public ResponseEntity<?> getCurrentUnfinishedUserGame (@CurrentUserId String userId) {
         try {
-            GameEntity game =  gameService.getCurrentUnfinishedUserGame(userId);
+            GameModel game =  gameService.getActiveUserGame(userId);
             return ResponseEntity.ok(game);
         }  catch (GameNotFoundExeption e) {
             return ResponseEntity.status(404).body(e.getMessage());
-        } catch (ElseGameExeption e) {
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/my-current/answers")
+    public ResponseEntity<?> addAnswerForNextNonAnsweredQuestion (@CurrentUserId String userId, @Valid @RequestBody AnswerForQuestionRequest answer) {
+        try {
+            AnswerModal answerResult =  gameService.addAnswerForNextQuestion(userId, answer.getAnswer());
+            return ResponseEntity.ok(answerResult);
+        }  catch (ElseGameExeption e) {
             return ResponseEntity.status(403).body(e.getMessage());
-        }catch (Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

@@ -32,9 +32,26 @@ public class PlayerServices {
         }
     }
 
-    public PlayerEntity findPlayerByUserId(String userId){
-        Optional<PlayerEntity> player = playerRepository.findByUserId(userId);
+    public PlayerEntity findPlayerById(String playerId){
+        Optional<PlayerEntity> player = playerRepository.findById(playerId);
         return player.get();
     }
+
+    public PlayerEntity findPlayerByUserIdAndStatus(String userId, PlayerStatus status){
+        Optional<PlayerEntity> player = playerRepository.findByUserIdAndStatus(userId, status);
+        if (player.isPresent()){
+            return player.get();
+        } else return null;
+    }
+
+//    public PlayerEntity addAnswer (String answer){
+//        Optional<PlayerEntity> existingAnswers = playerRepository.findByUserIdAndStatus(userId, status);
+//        if (player.isPresent()){
+//            return player.get();
+//        } else return null;
+//    }
+
+
+
 
 }
