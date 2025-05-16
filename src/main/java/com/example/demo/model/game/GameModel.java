@@ -55,7 +55,7 @@ public class GameModel {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class PlayerProgress {
-        private List<Answer> answers;
+        private List<String> answers;
         private Player player;
         private int score;
     }

@@ -42,6 +42,7 @@ public class GameController {
 
     @GetMapping("/my-current")
     public ResponseEntity<?> getCurrentUnfinishedUserGame (@CurrentUserId String userId) {
+
         try {
             GameModel game =  gameService.getActiveUserGame(userId);
             return ResponseEntity.ok(game);
@@ -59,7 +60,8 @@ public class GameController {
             return ResponseEntity.ok(answerResult);
         }  catch (ElseGameExeption e) {
             return ResponseEntity.status(403).body(e.getMessage());
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

@@ -62,7 +62,7 @@ public class GameService {
         // check if Active player exist
         Optional<PlayerEntity> playerEntityOptional = Optional.ofNullable(playerServices.findPlayerByUserIdAndStatus(userId, PlayerStatus.ACTIVE));
         if (!playerEntityOptional.isPresent()){
-            throw new GameNotFoundExeption("player with user id " + userId + "in Active status not found");
+            throw new ElseGameExeption("player with user id " + userId + "in Active status not found");
         }
 
         String playerId = playerEntityOptional.get().getId();
@@ -128,8 +128,8 @@ public class GameService {
           String playerTwoId = activeGame.getPlayer_2();
           PlayerEntity playerOne = playerServices.findPlayerById(playerOneId);
           PlayerEntity playerTwo = playerServices.findPlayerById(playerTwoId);
-          List playerOneAnswers = playerOne.getAnswers();
-          List playerTwoAnswers = playerTwo.getAnswers();
+          List<String> playerOneAnswers = playerOne.getAnswers();
+          List<String> playerTwoAnswers = playerTwo.getAnswers();
           Integer playerOneScore = playerOne.getScore();
           Integer playerTwoScore = playerTwo.getScore();
 

@@ -5,7 +5,7 @@ import com.example.demo.dto.login.LoginRequest;
 import com.example.demo.dto.question.PostQuestionRequest;
 import com.example.demo.dto.question.PublishQuestionRequest;
 import com.example.demo.entity.UserEntity;
-import com.example.demo.repository.UserRepo;
+import com.example.demo.repository.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,9 +39,25 @@ public class UserIntegrationTest {
     @Autowired
     private UserRepo userRepo;
 
+    @Autowired
+    private GameRepository gameRepository;
+
+    @Autowired
+    private PlayerRepository playerRepository;
+
+    @Autowired
+    private QuestionRepo questionRepo;
+
+    @Autowired
+    private AnswerRepo answerRepo;
+
     @BeforeEach
     public void setUp() {
         userRepo.deleteAll();
+        gameRepository.deleteAll();
+        playerRepository.deleteAll();
+        questionRepo.deleteAll();
+        answerRepo.deleteAll();
     }
 
     @Test

@@ -43,15 +43,4 @@ public class PlayerServices {
             return player.get();
         } else return null;
     }
-
-//    public PlayerEntity addAnswer (String answer){
-//        Optional<PlayerEntity> existingAnswers = playerRepository.findByUserIdAndStatus(userId, status);
-//        if (player.isPresent()){
-//            return player.get();
-//        } else return null;
-//    }
-
-
-
-
 }
